@@ -9,6 +9,9 @@
 <AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns:fx="http://javafx.com/fxml/1" fx:controller="alfile.FXMLDocumentController">
     <children>
         <Button layoutX="126" layoutY="90" text="Click Me!" onAction="#handleButtonAction" fx:id="button" />
-        <Label layoutX="126" layoutY="120" minHeight="16" minWidth="69" fx:id="label" />
+        <Label layoutX="156" layoutY="120" minHeight="16" minWidth="69" fx:id="label" />
+        
+        <Button layoutX="590" layoutY="445" text="Save and Quit" onAction="#quitButtonAction" fx:id="btnSave" />
+        <Button layoutX="520" layoutY="445" text="Apply" onAction="#applyButtonAction" fx:id="btnApply" />
     </children>
 </AnchorPane>
