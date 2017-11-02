@@ -3,16 +3,21 @@ package controller;
 import view.AlFile;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class AlFileController {
 
     private AlFile alfile;
-    private JButton btn1;
+    private JButton processButton;
     private JCheckBox selectedCheckBox;
     private JCheckBox allCheckBox;
-    private JList list;
+    private JList functionList;
+    private JList originalNameList;
+    private JList fixedNameList;
+    private JList fIleLocationList;
+    private JLabel emptyFunctionLabel;
 
 
     public AlFileController() {
@@ -27,19 +32,31 @@ public class AlFileController {
     private void initComponents() {
         alfile = new AlFile();
 
-        btn1 = alfile.getBtn1();
+        processButton = alfile.getProcessButton();
         selectedCheckBox = alfile.getSelectedCheckBox();
-        allCheckBox = alfile.getSelectedCheckBox();
-        list = alfile.getList();
+        allCheckBox = alfile.getAllCheckBox();
+        functionList = alfile.getFunctionList();
+        originalNameList = alfile.getOriginalNameList();
+        fixedNameList = alfile.getFixedNameList();
+        fIleLocationList = alfile.getfIleLocationList();
+        emptyFunctionLabel = alfile.getEmptyFunctionLabel();
     }
 
     private void initListeners() {
-        btn1.addActionListener(new btn1Listener());
+        processButton.addActionListener(new processButtonListener());
+        functionList.addListSelectionListener(new functionListListener());
     }
 
-    private class btn1Listener implements ActionListener {
+    private class processButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
+
+        }
+    }
+
+    private class functionListListener implements javax.swing.event.ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
 
         }
     }
