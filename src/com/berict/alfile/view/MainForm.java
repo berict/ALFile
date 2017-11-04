@@ -7,9 +7,9 @@ public class MainForm extends JFrame {
     private JPanel rootPanel;
 
     private JPanel tablesPanel;
-    private JLabel nameBeforeLable;
-    private JLabel nameAfterLable;
-    private JLabel locationLable;
+    private JLabel nameBeforeLabel;
+    private JLabel nameAfterLabel;
+    private JLabel locationLabel;
     private JList nameBeforeList;
     private JList nameAfterList;
     private JList locationList;
@@ -25,6 +25,7 @@ public class MainForm extends JFrame {
 
     public MainForm() {
         setSize(1280, 720);
+        setTitle("AlFile");
         setContentPane(rootPanel);
         setLocationRelativeTo(null);
     }
@@ -37,16 +38,16 @@ public class MainForm extends JFrame {
         return tablesPanel;
     }
 
-    public JLabel getNameBeforeLable() {
-        return nameBeforeLable;
+    public JLabel getNameBeforeLabel() {
+        return nameBeforeLabel;
     }
 
-    public JLabel getNameAfterLable() {
-        return nameAfterLable;
+    public JLabel getNameAfterLabel() {
+        return nameAfterLabel;
     }
 
-    public JLabel getLocationLable() {
-        return locationLable;
+    public JLabel getLocationLabel() {
+        return locationLabel;
     }
 
     public JList getNameBeforeList() {
