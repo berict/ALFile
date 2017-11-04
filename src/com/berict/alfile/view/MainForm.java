@@ -1,6 +1,7 @@
 package com.berict.alfile.view;
 
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 
 public class MainForm extends JFrame {
 

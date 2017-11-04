@@ -1,4 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- JFoenix example -->
+<!--
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-min-width: 800; -fx-min-height: 600;" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <AnchorPane fx:id="an_menu" minWidth="240.0" prefHeight="600.0" prefWidth="240.0" style="-fx-background-color: CFD8DC;">
+         <children>
+            <JFXButton fx:id="processButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" layoutX="20.0" layoutY="538.0" prefHeight="48.0" prefWidth="200.0" ripplerFill="#607d8b" style="-fx-background-color: 607D8B;" text="Process" textAlignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </JFXButton>
+            <JFXButton fx:id="processButton1" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="48.0" prefWidth="200.0" ripplerFill="#607d8b" style="-fx-background-color: 607D8B;" text="Process" textAlignment="CENTER">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </JFXButton>
+         </children>
+      </AnchorPane>
+   </children>
+</Pane>
+-->
+
 <?import javafx.scene.layout.GridPane?>
+
 <GridPane fx:controller="com.berict.alfile.controller.MainController"
           xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
 </GridPane>
