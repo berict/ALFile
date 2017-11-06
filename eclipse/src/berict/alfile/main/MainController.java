@@ -1,6 +1,7 @@
 package berict.alfile.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -17,9 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 public class MainController {
+	
+	private JFrame frame = new JFrame();
 
 	public MainController() {
-		JFrame frame = new JFrame();
 
 		frame.setSize(new Dimension(960, 540));
 		// this kills the process on exit
@@ -28,10 +30,25 @@ public class MainController {
 
 		ImageIcon img = new ImageIcon("icon.png");
 		frame.setIconImage(img.getImage());
-
+		frame.setVisible(true);
+		
+		initLeftPane();
+	}
+	
+	void initCenterPane() {
+		JPanel centerPane = new JPanel();
+		centerPane.setLayout(new GridLayout(1, 3));
+		centerPane.setSize(740, frame.getHeight());
+		
+	}
+	
+	void initLeftPane() {
 		JPanel leftPane = new JPanel();
 		leftPane.setLayout(new GridLayout(11, 1));
 		leftPane.setBounds(0, 0, 220, frame.getHeight());
+		leftPane.setBackground(new Color(Integer.parseInt("B0BEC5", 16)));
+		
+		// add items
 		String items[] = {
 				"Change file extension",
 				"To lower case",
@@ -43,8 +60,12 @@ public class MainController {
 		};
 
 		addItemsToButton(items, leftPane);
+		
+		// add radio buttons
 		JRadioButton r1 = new JRadioButton("All");
 		JRadioButton r2 = new JRadioButton("Selected");
+		
+		r1.setSelected(true);
 		
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(r1);
@@ -54,12 +75,20 @@ public class MainController {
 		radioPane.setLayout(new GridLayout(2, 1));
 		radioPane.add(r1);
 		radioPane.add(r2);
-
+		
+		// add to layout
 		leftPane.add(radioPane);
+		
+		// add margin
+		leftPane.add(new JLabel());
+		leftPane.add(new JLabel());
+		
+		// add process button
+		JButton process = new JButton("Process");
+		leftPane.add(process);
 
 		frame.setLayout(new BorderLayout());
 		frame.add(leftPane, BorderLayout.WEST);
-		frame.setVisible(true);
 	}
 
 	void addItemsToButton(String items[], JPanel panel) {
