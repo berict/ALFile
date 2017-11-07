@@ -42,7 +42,7 @@ public class MainController {
         frame.setVisible(true);
     }
 
-    void initCenterPane() {
+    private void initCenterPane() {
         JPanel centerPane = new JPanel();
         centerPane.setSize(740, frame.getHeight());
 
@@ -64,22 +64,17 @@ public class MainController {
         for (int i = 0; i < fileList.length; i++) {
             if (fileList[i].isFile()) {
                 data[fileNum][0] = fileList[i].getName();
-                data[fileNum][2] = fileList[i].getParent();
+                data[fileNum][2] = fileList[i].getAbsolutePath();
                 fileNum++;
             }
         }
 
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
-
             @Override
             public boolean isCellEditable(int row, int column) {
-                if (column == 1) {
-                    return true;
-                } else {
-                    return false;
-                }
+                // only make the 2nd column editable
+                return column == 1;
             }
-
         };
 
         JTable table = new JTable();
@@ -101,7 +96,7 @@ public class MainController {
         frame.add(centerPane, BorderLayout.CENTER);
     }
 
-    void initLeftPane() {
+    private void initLeftPane() {
         JPanel leftPane = new JPanel();
         leftPane.setLayout(new GridLayout(11, 1));
         leftPane.setBounds(0, 0, 220, frame.getHeight());
