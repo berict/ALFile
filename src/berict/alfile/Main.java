@@ -1,6 +1,6 @@
 package berict.alfile;
 
-import berict.alfile.main.MainController;
+import berict.alfile.main.MainFormController;
 
 public class Main {
 
@@ -9,7 +9,11 @@ public class Main {
     }
 
     static void init() {
-        MainController controller = new MainController();
+        // full swing method
+        // MainSwingController controller = new MainSwingController();
+
+        // form method
+        MainFormController controller = new MainFormController();
     }
 
 }

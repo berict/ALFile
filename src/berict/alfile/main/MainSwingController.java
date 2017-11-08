@@ -22,11 +22,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-public class MainController {
+public class MainSwingController {
 
     private JFrame frame = new JFrame();
 
-    public MainController() {
+    public MainSwingController() {
 
         frame.setSize(new Dimension(960, 540));
         // this kills the process on exit
