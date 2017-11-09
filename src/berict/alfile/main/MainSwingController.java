@@ -109,7 +109,9 @@ public class MainSwingController {
         	public void filesDropped( java.io.File[] files ) {
         		for (int i = 0; i < files.length; i++) {
         			String fileName = files[i].getName();
-        			data[0][0] = fileName;
+        			String fileLoc = files[i].getAbsolutePath();
+        			tableModel.addRow(new Object[] {fileName, null, fileLoc});
+        			tableModel.fireTableDataChanged();
         		}
         	}
         });
