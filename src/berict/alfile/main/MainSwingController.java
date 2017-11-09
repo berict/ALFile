@@ -22,6 +22,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import lib.FileDrop;
+
 public class MainSwingController {
 
     private JFrame frame = new JFrame();
@@ -101,6 +103,16 @@ public class MainSwingController {
         scrollPane.setPreferredSize(new Dimension(740, 300));
         centerPane.add(scrollPane);
         frame.add(centerPane, BorderLayout.CENTER);
+        
+        // drag and drop files
+        new FileDrop(System.out, table, new FileDrop.Listener() {   
+        	public void filesDropped( java.io.File[] files ) {
+        		for (int i = 0; i < files.length; i++) {
+        			String fileName = files[i].getName();
+        			data[0][0] = fileName;
+        		}
+        	}
+        });
     }
 
     private void initLeftPane() {
