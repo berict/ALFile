@@ -57,7 +57,14 @@ public class MainSwingController {
                 "Location"
         };
 
-        Object[][] data = new Object[fileList.length][3];
+        // get files count
+        int fileCount = 0;
+        for (int i = 0; i < fileList.length; i++) {
+        	if (fileList[i].isFile())
+        		fileCount ++;
+        }
+        
+        Object[][] data = new Object[fileCount][3];
 
         // set file table
         int fileNum = 0;

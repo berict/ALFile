@@ -4,7 +4,7 @@ import javax.swing.*;
 
 public class MainForm extends JFrame {
 
-    private JPanel parentPanel;
+    private JPanel parentPanel;// = new JPanel();
     private JPanel leftPanel;
     private JButton replaceButton;
     private JButton changeCaseButton;
@@ -22,9 +22,11 @@ public class MainForm extends JFrame {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
+        //setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     public void setVisible(boolean visible) {
-        setVisible(visible);
+        // super.setVisible(visible);
+    	setVisible(visible);
     }
 }
