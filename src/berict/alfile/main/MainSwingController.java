@@ -37,12 +37,6 @@ public class MainSwingController {
         JPanel centerPane = new JPanel();
         centerPane.setSize(740, frame.getHeight());
 
-        String[] columnNames = {
-                "Original File names",
-                "Changed File names",
-                "Location"
-        };
-
         TableModel tableModel = new TableModel();
 
         JTable table = new JTable();
