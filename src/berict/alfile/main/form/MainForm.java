@@ -27,51 +27,31 @@ public class MainForm extends JFrame {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
-        //setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         replaceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String oldString = JOptionPane.showInputDialog("old String : ");
-                String newString = JOptionPane.showInputDialog("new String : ");
+                JTextField oldString = new JTextField();
+                JTextField newString = new JTextField();
+                final JComponent[] inputs = new JComponent[]{
+                        new JLabel("String to replace"),
+                        oldString,
+                        new JLabel("New string"),
+                        newString
+                };
+                int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    System.out.println(oldString + " > to > " + newString);
+                } else {
+                    System.out.println("Result : " + result);
+                }
+
+                if (oldString != null && newString != null) {
+                    // TODO add actions to the table
+                }
             }
         });
-
-        changeCaseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        insertButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        changeExtensionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        renumberButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
-        processButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
     }
 
     private void createUIComponents() {
