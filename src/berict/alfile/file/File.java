@@ -42,6 +42,10 @@ public class File extends java.io.File {
         System.out.println(toString());
     }
 
+    public File(java.io.File file) {
+        this(file.getAbsolutePath());
+    }
+
     public File(String parent, String child) {
         super(parent, child);
         original = this;
@@ -192,6 +196,10 @@ public class File extends java.io.File {
 
     public String getFullPath() {
         return path + fileName;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     @Override
