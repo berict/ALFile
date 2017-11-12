@@ -14,10 +14,10 @@ public class Main {
 
     static void init() {
         // full swing method
-        MainSwingController controller = new MainSwingController();
+//        MainSwingController controller = new MainSwingController();
 
         // form method
-        //MainFormController controller = new MainFormController();
+        MainFormController controller = new MainFormController();
 
         if (DEBUG) {
             debug();

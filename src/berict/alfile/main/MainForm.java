@@ -16,6 +16,8 @@ public class MainForm extends JFrame {
     private JRadioButton processAllButton;
     private JRadioButton processSelectedButton;
     private JButton processButton;
+    private JPanel centerPanel;
+    private JTable table;
 
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
@@ -69,10 +71,5 @@ public class MainForm extends JFrame {
             }
         });
 
-    }
-
-    public void setVisible(boolean visible) {
-        // super.setVisible(visible);
-    	setVisible(visible);
     }
 }
