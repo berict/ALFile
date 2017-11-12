@@ -1,6 +1,10 @@
 package berict.alfile.main.form;
 
+import berict.alfile.file.TableModel;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -55,5 +59,22 @@ public class MainForm extends JFrame {
     }
 
     private void createUIComponents() {
+        setUI();
+    }
+
+    private void setUI() {
+        TableModel tableModel = new TableModel();
+
+        table.setModel(tableModel);
+        table.setSize(500, 300);
+        table.setRowHeight(30);
+
+        // Center Align
+        DefaultTableCellRenderer align = new DefaultTableCellRenderer();
+        align.setHorizontalAlignment(SwingConstants.LEFT);
+        TableColumnModel columnModel = table.getColumnModel();
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            columnModel.getColumn(i).setCellRenderer(align);
+        }
     }
 }
