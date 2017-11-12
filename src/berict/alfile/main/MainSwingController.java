@@ -92,11 +92,11 @@ public class MainSwingController {
         table.setRowHeight(30);
 
         // Center Align
-        DefaultTableCellRenderer defalutCellRenderer = new DefaultTableCellRenderer();
-        defalutCellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        TableColumnModel cloumnModel = table.getColumnModel();
-        for (int i = 0; i < cloumnModel.getColumnCount(); i++)
-            cloumnModel.getColumn(i).setCellRenderer(defalutCellRenderer);
+        DefaultTableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
+        defaultCellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        TableColumnModel columnModel = table.getColumnModel();
+        for (int i = 0; i < columnModel.getColumnCount(); i++)
+            columnModel.getColumn(i).setCellRenderer(defaultCellRenderer);
 
         centerPane.add(table);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -105,8 +105,8 @@ public class MainSwingController {
         frame.add(centerPane, BorderLayout.CENTER);
         
         // drag and drop files
-        new FileDrop(System.out, table, new FileDrop.Listener() {   
-        	public void filesDropped( java.io.File[] files ) {
+        new FileDrop(System.out, table, new FileDrop.Listener() {
+            public void filesDropped( java.io.File[] files ) {
         		for (int i = 0; i < files.length; i++) {
         			String fileName = files[i].getName();
         			String fileLoc = files[i].getAbsolutePath();
