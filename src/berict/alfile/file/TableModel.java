@@ -16,14 +16,17 @@ public class TableModel extends AbstractTableModel {
             "Location"
     };
 
+    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
+    @Override
     public int getRowCount() {
         return data.length;
     }
 
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
@@ -61,10 +64,10 @@ public class TableModel extends AbstractTableModel {
         return getValueAt(0, c).getClass();
     }
 
+    @Override
     public boolean isCellEditable(int row, int column) {
         return column == 1;
     }
-
 
     public void setValueAt(Object value, int row, int col) {
         if (DEBUG) {

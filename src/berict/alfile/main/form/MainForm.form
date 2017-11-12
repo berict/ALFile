@@ -120,26 +120,23 @@
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints border-constraint="Center"/>
         <properties>
-          <background color="-31326"/>
+          <background color="-1"/>
         </properties>
         <border type="none"/>
         <children>
-          <component id="ad3f3" class="javax.swing.JTable" binding="table">
+          <scrollpane id="cf583">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                <minimum-size width="150" height="50"/>
-                <preferred-size width="150" height="50"/>
-              </grid>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <autoCreateRowSorter value="true"/>
-              <background color="-22177"/>
-              <foreground color="-12672827"/>
-              <showHorizontalLines value="true"/>
-              <showVerticalLines value="true"/>
-              <verifyInputWhenFocusTarget value="true"/>
-            </properties>
-          </component>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="92867" class="javax.swing.JTable" binding="table">
+                <constraints/>
+                <properties/>
+              </component>
+            </children>
+          </scrollpane>
         </children>
       </grid>
     </children>

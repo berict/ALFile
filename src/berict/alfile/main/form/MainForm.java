@@ -1,12 +1,15 @@
 package berict.alfile.main.form;
 
+import berict.alfile.file.FileTableItem;
 import berict.alfile.file.TableModel;
+import lib.FileDrop;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 
 public class MainForm extends JFrame {
@@ -76,5 +79,14 @@ public class MainForm extends JFrame {
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setCellRenderer(align);
         }
+
+        // drag and drop files
+        new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
+            public void filesDropped(java.io.File[] files) {
+                for (File file : files) {
+                    tableModel.add(new FileTableItem(file));
+                }
+            }
+        });
     }
 }
