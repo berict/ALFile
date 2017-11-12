@@ -55,8 +55,5 @@ public class MainForm extends JFrame {
     }
 
     private void createUIComponents() {
-
-
-
     }
 }

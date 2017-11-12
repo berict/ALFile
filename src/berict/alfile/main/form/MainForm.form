@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="berict.alfile.main.form.MainForm">
   <grid id="27dc6" binding="parentPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="265" y="46" width="452" height="375"/>
+      <xy x="265" y="46" width="452" height="407"/>
     </constraints>
     <properties>
       <preferredSize width="540" height="320"/>
@@ -122,7 +122,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="ad3f3" class="javax.swing.JTable" binding="table" custom-create="true">
+          <component id="ad3f3" class="javax.swing.JTable" binding="table">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="50"/>
