@@ -125,7 +125,7 @@ public class MainSwingController {
         }
     }
 
-    class TableModel extends AbstractTableModel {
+    static class TableModel extends AbstractTableModel {
 
         private Object[][] data = new Object[0][3];
         private ArrayList<Object[]> dataList = new ArrayList<>();

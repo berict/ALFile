@@ -1,8 +1,9 @@
-package berict.alfile.main;
+package berict.alfile.main.form;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class MainForm extends JFrame {
 
@@ -70,6 +71,12 @@ public class MainForm extends JFrame {
 
             }
         });
+
+    }
+
+    private void createUIComponents() {
+
+
 
     }
 }
