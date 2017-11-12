@@ -6,6 +6,8 @@ import berict.alfile.main.MainSwingController;
 
 public class Main {
 
+    public static boolean DEBUG = false;
+
     public static void main(String[] args) {
         init();
     }
@@ -17,7 +19,9 @@ public class Main {
         // form method
         //MainFormController controller = new MainFormController();
 
-        debug();
+        if (DEBUG) {
+            debug();
+        }
     }
 
     private static void debug() {
