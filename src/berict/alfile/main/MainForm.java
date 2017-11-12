@@ -1,6 +1,8 @@
 package berict.alfile.main;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainForm extends JFrame {
 
@@ -23,6 +25,27 @@ public class MainForm extends JFrame {
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
         //setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        };
+
+        replaceButton.addActionListener(actionListener);
+        changeCaseButton.addActionListener(actionListener);
+        insertButton.addActionListener(actionListener);
+        changeExtensionButton.addActionListener(actionListener);
+        renumberButton.addActionListener(actionListener);
+
+        processButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
     }
 
     public void setVisible(boolean visible) {
