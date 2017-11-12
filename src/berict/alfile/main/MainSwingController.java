@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -17,12 +18,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
 
+import berict.alfile.file.FileTableItem;
 import lib.FileDrop;
+
+import static berict.alfile.Main.DEBUG;
 
 public class MainSwingController {
 
@@ -48,47 +49,13 @@ public class MainSwingController {
         JPanel centerPane = new JPanel();
         centerPane.setSize(740, frame.getHeight());
 
-        // get files
-
-//        TODO this is a test method
-//        String path = "C://";
-//        File dirFile = new File(path);
-//        File[] fileList = dirFile.listFiles();
-
-        File fileList[] = new File[0];
-
         String[] columnNames = {
                 "Original File names",
                 "Changed File names",
                 "Location"
         };
 
-        // get files count
-        int fileCount = 0;
-        for (int i = 0; i < fileList.length; i++) {
-        	if (fileList[i].isFile())
-                fileCount++;
-        }
-        
-        Object[][] data = new Object[fileCount][3];
-
-        // set file table
-        int fileNum = 0;
-        for (int i = 0; i < fileList.length; i++) {
-            if (fileList[i].isFile()) {
-                data[fileNum][0] = fileList[i].getName();
-                data[fileNum][2] = fileList[i].getAbsolutePath();
-                fileNum++;
-            }
-        }
-
-        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // only make the 2nd column editable
-                return column == 1;
-            }
-        };
+        TableModel tableModel = new TableModel();
 
         JTable table = new JTable();
         table.setModel(tableModel);
@@ -109,15 +76,12 @@ public class MainSwingController {
         frame.add(centerPane, BorderLayout.CENTER);
         
         // drag and drop files
-        new FileDrop(System.out, table, new FileDrop.Listener() {
+        new FileDrop(System.out, centerPane, new FileDrop.Listener() {
             public void filesDropped( java.io.File[] files ) {
-        		for (int i = 0; i < files.length; i++) {
-        			String fileName = files[i].getName();
-        			String fileLoc = files[i].getAbsolutePath();
-        			tableModel.addRow(new Object[] {fileName, null, fileLoc});
-        			tableModel.fireTableDataChanged();
-        		}
-        	}
+                for (File file : files) {
+                    tableModel.add(new FileTableItem(file));
+                }
+            }
         });
     }
 
@@ -172,9 +136,100 @@ public class MainSwingController {
         frame.add(leftPane, BorderLayout.WEST);
     }
 
-    void addItemsToButton(String items[], JPanel panel) {
+    private void addItemsToButton(String items[], JPanel panel) {
         for (String item : items) {
             panel.add(new JButton(item));
+        }
+    }
+
+    class TableModel extends AbstractTableModel {
+        // example from @link http://www.java2s.com/Code/Java/Swing-JFC/TablewithacustomTableModel.htm
+        private String[] columnNames = {
+                "Original File names",
+                "Changed File names",
+                "Location"
+        };
+
+        private Object[][] data = new Object[0][3];
+        private ArrayList<Object[]> dataList = new ArrayList<>();
+
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        public int getRowCount() {
+            return data.length;
+        }
+
+        public String getColumnName(int col) {
+            return columnNames[col];
+        }
+
+        public Object getValueAt(int row, int col) {
+            return data[row][col];
+        }
+
+        public void add(FileTableItem item) {
+            dataList.add(item.toObjects());
+            updateFromDataList();
+
+            if (DEBUG) {
+                System.out.println("Added value " + item.getFile().getFullPath());
+            }
+        }
+
+        public void set(int column, FileTableItem item) {
+            dataList.set(column, item.toObjects());
+            updateFromDataList();
+        }
+
+        private void updateFromDataList() {
+            // update the data
+            data = dataList.toArray(new Object[dataList.size()][3]);
+            fireTableDataChanged();
+        }
+
+        /*
+         * JTable uses this method to determine the default renderer/ editor for
+         * each cell. If we didn't implement this method, then the last column
+         * would contain text ("true"/"false"), rather than a check box.
+         */
+        public Class getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
+
+        public boolean isCellEditable(int row, int column) {
+            return column == 1;
+        }
+
+        public void setValueAt(Object value, int row, int col) {
+            if (DEBUG) {
+                System.out.println("Setting value at " + row + "," + col
+                        + " to " + value + " (an instance of "
+                        + value.getClass() + ")");
+            }
+
+            data[row][col] = value;
+            fireTableCellUpdated(row, col);
+
+            if (DEBUG) {
+                System.out.println("New value of data:");
+                printDebugData();
+            }
+        }
+
+        private void printDebugData() {
+            int numRows = getRowCount();
+            int numCols = getColumnCount();
+
+            for (int i = 0; i < numRows; i++) {
+                System.out.print("    row " + i + ":");
+                for (int j = 0; j < numCols; j++) {
+                    System.out.print("  " + data[i][j]);
+                }
+                System.out.println();
+            }
+            System.out.println("--------------------------");
         }
     }
 }
