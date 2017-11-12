@@ -1,27 +1,15 @@
 package berict.alfile.main;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.io.File;
-import java.util.ArrayList;
-
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.table.*;
-
 import berict.alfile.file.FileTableItem;
 import lib.FileDrop;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.io.File;
+import java.util.ArrayList;
 
 import static berict.alfile.Main.DEBUG;
 
@@ -63,21 +51,22 @@ public class MainSwingController {
         table.setRowHeight(30);
 
         // Center Align
-        DefaultTableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
-        defaultCellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        DefaultTableCellRenderer align = new DefaultTableCellRenderer();
+        align.setHorizontalAlignment(SwingConstants.LEFT);
         TableColumnModel columnModel = table.getColumnModel();
-        for (int i = 0; i < columnModel.getColumnCount(); i++)
-            columnModel.getColumn(i).setCellRenderer(defaultCellRenderer);
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            columnModel.getColumn(i).setCellRenderer(align);
+        }
 
         centerPane.add(table);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(740, 300));
         centerPane.add(scrollPane);
         frame.add(centerPane, BorderLayout.CENTER);
-        
+
         // drag and drop files
         new FileDrop(System.out, centerPane, new FileDrop.Listener() {
-            public void filesDropped( java.io.File[] files ) {
+            public void filesDropped(java.io.File[] files) {
                 for (File file : files) {
                     tableModel.add(new FileTableItem(file));
                 }
@@ -143,15 +132,16 @@ public class MainSwingController {
     }
 
     class TableModel extends AbstractTableModel {
+
+        private Object[][] data = new Object[0][3];
+        private ArrayList<Object[]> dataList = new ArrayList<>();
+
         // example from @link http://www.java2s.com/Code/Java/Swing-JFC/TablewithacustomTableModel.htm
         private String[] columnNames = {
                 "Original File names",
                 "Changed File names",
                 "Location"
         };
-
-        private Object[][] data = new Object[0][3];
-        private ArrayList<Object[]> dataList = new ArrayList<>();
 
         public int getColumnCount() {
             return columnNames.length;
@@ -201,6 +191,7 @@ public class MainSwingController {
         public boolean isCellEditable(int row, int column) {
             return column == 1;
         }
+
 
         public void setValueAt(Object value, int row, int col) {
             if (DEBUG) {
