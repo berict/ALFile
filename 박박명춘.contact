@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c:contact c:Version="1" xmlns:c="http://schemas.microsoft.com/Contact" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:MSP2P="http://schemas.microsoft.com/Contact/Extended/MSP2P">
+	<c:CreationDate>2017-11-12T13:20:40Z</c:CreationDate><c:Extended xsi:nil="true"/>
+	<c:ContactIDCollection><c:ContactID c:ElementID="ab002dea-c9c2-4eb9-9df0-a0e926c114d8"><c:Value>bff1e689-0cbb-4711-a159-6e0db5606e40</c:Value></c:ContactID></c:ContactIDCollection><c:NameCollection><c:Name c:ElementID="7cb2f95c-5965-4345-92fe-d39619f05a51"><c:NickName>명춘이</c:NickName><c:FormattedName>박박명춘</c:FormattedName><c:FamilyName>박</c:FamilyName><c:GivenName>박명춘</c:GivenName></c:Name></c:NameCollection><c:PhotoCollection><c:Photo c:ElementID="0423d68b-d704-4852-b531-3d7b625d9508"><c:LabelCollection><c:Label>UserTile</c:Label></c:LabelCollection></c:Photo></c:PhotoCollection></c:contact>
