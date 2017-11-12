@@ -78,7 +78,7 @@ public class File extends java.io.File {
     }
 
     public void toUpperCase() {
-        String names[] = fileName.split(".");
+        String names[] = fileName.split("\\.");
         if (names.length > 0) {
             // only uppercase the actual file 'name', not the extension
             names[0] = names[0].toUpperCase();
@@ -106,7 +106,7 @@ public class File extends java.io.File {
     }
 
     public void replaceExtension(String replacement) {
-        String names[] = fileName.split(".");
+        String names[] = fileName.split("\\.");
         if (names.length > 0) {
             // only uppercase the actual file 'name', not the extension
             this.fileName = names[0] + "." + replacement;
@@ -123,7 +123,7 @@ public class File extends java.io.File {
         if (containExtension) {
             this.fileName = fileName + value;
         } else {
-            String names[] = fileName.split(".");
+            String names[] = fileName.split("\\.");
             if (names.length > 0) {
                 // only uppercase the actual file 'name', not the extension
                 names[0] = names[0] + value;
@@ -161,7 +161,7 @@ public class File extends java.io.File {
         if (containExtension) {
             this.fileName = name;
         } else {
-            String names[] = fileName.split(".");
+            String names[] = fileName.split("\\.");
             if (names.length > 0) {
                 // only uppercase the actual file 'name', not the extension
                 names[0] = name;
