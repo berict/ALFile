@@ -49,9 +49,13 @@ public class MainSwingController {
         centerPane.setSize(740, frame.getHeight());
 
         // get files
-        String path = "C://";
-        File dirFile = new File(path);
-        File[] fileList = dirFile.listFiles();
+
+//        TODO this is a test method
+//        String path = "C://";
+//        File dirFile = new File(path);
+//        File[] fileList = dirFile.listFiles();
+
+        File fileList[] = new File[0];
 
         String[] columnNames = {
                 "Original File names",
@@ -63,7 +67,7 @@ public class MainSwingController {
         int fileCount = 0;
         for (int i = 0; i < fileList.length; i++) {
         	if (fileList[i].isFile())
-        		fileCount ++;
+                fileCount++;
         }
         
         Object[][] data = new Object[fileCount][3];
