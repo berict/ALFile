@@ -22,11 +22,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-public class MainController {
+import lib.FileDrop;
+
+public class MainSwingController {
 
     private JFrame frame = new JFrame();
 
-    public MainController() {
+    public MainSwingController() {
 
         frame.setSize(new Dimension(960, 540));
         // this kills the process on exit
@@ -57,7 +59,14 @@ public class MainController {
                 "Location"
         };
 
-        Object[][] data = new Object[fileList.length][3];
+        // get files count
+        int fileCount = 0;
+        for (int i = 0; i < fileList.length; i++) {
+        	if (fileList[i].isFile())
+        		fileCount ++;
+        }
+        
+        Object[][] data = new Object[fileCount][3];
 
         // set file table
         int fileNum = 0;
@@ -94,6 +103,18 @@ public class MainController {
         scrollPane.setPreferredSize(new Dimension(740, 300));
         centerPane.add(scrollPane);
         frame.add(centerPane, BorderLayout.CENTER);
+        
+        // drag and drop files
+        new FileDrop(System.out, table, new FileDrop.Listener() {   
+        	public void filesDropped( java.io.File[] files ) {
+        		for (int i = 0; i < files.length; i++) {
+        			String fileName = files[i].getName();
+        			String fileLoc = files[i].getAbsolutePath();
+        			tableModel.addRow(new Object[] {fileName, null, fileLoc});
+        			tableModel.fireTableDataChanged();
+        		}
+        	}
+        });
     }
 
     private void initLeftPane() {

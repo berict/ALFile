@@ -13,4 +13,4 @@
 
 # Log file
 *.log
-bin/
+/bin/
