@@ -26,18 +26,41 @@ public class MainForm extends JFrame {
         setLocationRelativeTo(null);
         //setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        ActionListener actionListener = new ActionListener() {
+        replaceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String oldString = JOptionPane.showInputDialog("old String : ");
+                String newString = JOptionPane.showInputDialog("new String : ");
+            }
+        });
+
+        changeCaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
             }
-        };
+        });
 
-        replaceButton.addActionListener(actionListener);
-        changeCaseButton.addActionListener(actionListener);
-        insertButton.addActionListener(actionListener);
-        changeExtensionButton.addActionListener(actionListener);
-        renumberButton.addActionListener(actionListener);
+        insertButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        changeExtensionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        renumberButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
 
         processButton.addActionListener(new ActionListener() {
             @Override
