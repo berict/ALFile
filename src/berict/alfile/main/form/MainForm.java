@@ -141,9 +141,55 @@ public class MainForm extends JFrame {
                 }
             }
         });
+
+        changeCaseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField newString = new JTextField();
+                final JComponent[] inputs = new JComponent[]{
+                        new JLabel("Change case"),
+                        newString
+                };
+                String[] options = new String[]{ "to Uppercase", "to Lowercase", "Cancel" };
+                // TODO add input option
+                int result = JOptionPane.showOptionDialog(null, "Select the option : ", "Change case", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Cancel");
+                if (result == JOptionPane.YES_OPTION) {
+                    // TODO get selected file's name and make it Uppercase
+                } else if (result == JOptionPane.NO_OPTION) {
+                    // TODO get selected file's name and make it Lowercase
+                }
+                if (newString != null) {
+                    // TODO add actions to the table
+                }
+            }
+        });
+
+        insertButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField newString = new JTextField();
+                final JComponent[] inputs = new JComponent[]{
+                        new JLabel("Insert String"),
+                        newString
+                };
+                String[] options = new String[] { "Insert to beginning", "Insert to end", "Cancel" };
+                // TODO add input option
+                int result = JOptionPane.showOptionDialog(null, "Input String : ", "Insert String", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Cancel");
+                if (result == JOptionPane.YES_OPTION) {
+                    System.out.println("Result : " + newString + result);
+                } else if (result == JOptionPane.NO_OPTION){
+                    System.out.println("Result : " + result + newString);
+                }
+                if (newString != null) {
+                    // TODO add actions to the table
+                }
+            }
+        });
     }
 
-    private void makeErrorDialog()
+    private void makeErrorDialog(){
+
+    }
 
     private void makeDialog(String title, String text, int optionType, int confirmAction, Runnable onConfirm, Runnable onCancel) {
         final JComponent[] label = new JComponent[]{ new JLabel(text) };
