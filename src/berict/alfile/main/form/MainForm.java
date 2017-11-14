@@ -249,28 +249,26 @@ public class MainForm extends JFrame {
                                     boolean isUpper = upper.isSelected();
                                     if (table.getSelectedRows().length > 0) {
                                         // has selected rows
-                                        if (upper.isSelected()) {
-                                            for (int row : table.getSelectedRows()) {
-                                                tableModel.get(row)
-                                                        .getFile()
-                                                        .changeCase(isUpper);
-                                            }
-                                            tableModel.update();
-                                        } else {
-                                            // doesn't have selected rows
-                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            for (int row = 0; row < table.getRowCount(); row++) {
-                                                                tableModel.get(row)
-                                                                        .getFile()
-                                                                        .changeCase(isUpper);
-                                                            }
-                                                            tableModel.update();
-                                                        }
-                                                    }, null);
+                                        for (int row : table.getSelectedRows()) {
+                                            tableModel.get(row)
+                                                    .getFile()
+                                                    .changeCase(isUpper);
                                         }
+                                        tableModel.update();
+                                    } else {
+                                        // doesn't have selected rows
+                                        makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        for (int row = 0; row < table.getRowCount(); row++) {
+                                                            tableModel.get(row)
+                                                                    .getFile()
+                                                                    .changeCase(isUpper);
+                                                        }
+                                                        tableModel.update();
+                                                    }
+                                                }, null);
                                     }
                                 }
                             }, null);
@@ -364,12 +362,20 @@ public class MainForm extends JFrame {
                     if (DEBUG) {
                         System.out.println("process all");
                     }
-                    // TODO process All Event
+                    for (int row = 0; row < table.getRowCount(); row++) {
+                        tableModel.get(row)
+                                .getFile()
+                                .apply();
+                    }
                 } else if (processSelectedButton.isSelected()) {
                     if (DEBUG) {
                         System.out.println("process selected");
                     }
-                    // TODO process Selected Event
+                    for (int row : table.getSelectedRows()) {
+                        tableModel.get(row)
+                                .getFile()
+                                .apply();
+                    }
                 }
             }
         });
