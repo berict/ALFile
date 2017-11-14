@@ -62,7 +62,7 @@ public class MainForm extends JFrame {
         radioGroup.add(processAllButton);
         radioGroup.add(processSelectedButton);
 
-        // Center Align
+        // center align
         DefaultTableCellRenderer align = new DefaultTableCellRenderer();
         align.setHorizontalAlignment(SwingConstants.LEFT);
         TableColumnModel columnModel = table.getColumnModel();
@@ -150,12 +150,14 @@ public class MainForm extends JFrame {
         changeCaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final JLabel label = new JLabel("Select Option", SwingConstants.CENTER);
-                String[] options = new String[]{ "to Uppercase", "to Lowercase", "Cancel" };
+                JLabel label = new JLabel("Select Option", SwingConstants.CENTER);
+                String[] options = new String[]{ "to Uppercase", "to Lowercase", "cancel" };
+                String title = "Change case";
+                String msg = "Select the option";
                 // TODO add input option
-                int result = JOptionPane.showOptionDialog(label, "Select the option", "Change case", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Cancel");
+                int result = JOptionPane.showOptionDialog(label, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
                 if (result == JOptionPane.YES_OPTION) {
-                    // TODO get selected file's name and make it Uppercase                   System.out.println(fileName);
+                    // TODO get selected file's name and make it Uppercase
                 } else if (result == JOptionPane.NO_OPTION) {
                     // TODO get selected file's name and make it Lowercase
                 }
@@ -170,9 +172,11 @@ public class MainForm extends JFrame {
                         new JLabel("Insert String"),
                         newString
                 };
-                String[] options = new String[] { "Insert to beginning", "Insert to end", "Cancel" };
+                String[] options = new String[] { "Insert to beginning", "Insert to end", "cancel" };
                 // TODO add input option
-                int result = JOptionPane.showOptionDialog(null, "Input String : ", "Insert String", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Cancel");
+                String title = "Insert String";
+                String msg = "Input String : ";
+                int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
                 if (result == JOptionPane.YES_OPTION) {
                     System.out.println("Result : " + newString + result);
                 } else if (result == JOptionPane.NO_OPTION){
@@ -196,13 +200,21 @@ public class MainForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (processAllButton.isSelected()){
                     // TODO process All Event
-                    System.out.println("processAll is Selected");
+                    System.out.println("Process : processAll is Selected");
                 } else if (processSelectedButton.isSelected()) {
                     // TODO process Selected Event
-                    System.out.println("processSelected is Selected");
+                    System.out.println("Process : processSelected is Selected");
                 } else {
-                    // TODO make showConfirmDialog
-                    System.out.println("Nothing Selected");
+                    String[] options = new String[]{ "process All", "process Selected only", "cancel" };
+                    String title = "No process option";
+                    String msg = "There is no process option. Would you like to select it now?";
+                    int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
+                    if (result == JOptionPane.YES_OPTION) {
+                        // TODO process All Eventt
+                    } else if (result == JOptionPane.NO_OPTION) {
+                        // TODO process Selected Event
+                    }
+                    System.out.println("Process : Nothing Selected");
                 }
             }
         });
