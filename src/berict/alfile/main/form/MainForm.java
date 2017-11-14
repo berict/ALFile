@@ -124,19 +124,19 @@ public class MainForm extends JFrame {
         changeExtensionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField newString = new JTextField();
+                JTextField newExtention = new JTextField();
                 final JComponent[] inputs = new JComponent[]{
                         new JLabel("New extension"),
-                        newString
+                        newExtention
                 };
                 int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
                 if (result == JOptionPane.OK_OPTION) {
-                    System.out.println("Change extension to " + newString);
+                    System.out.println("Change extension to " + newExtention);
                 } else {
                     System.out.println("Result : " + result);
                 }
 
-                if (newString != null) {
+                if (newExtention != null) {
                     // TODO add actions to the table
                 }
             }
@@ -145,21 +145,14 @@ public class MainForm extends JFrame {
         changeCaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField newString = new JTextField();
-                final JComponent[] inputs = new JComponent[]{
-                        new JLabel("Change case"),
-                        newString
-                };
+                final JLabel label = new JLabel("Select Option", SwingConstants.CENTER);
                 String[] options = new String[]{ "to Uppercase", "to Lowercase", "Cancel" };
                 // TODO add input option
-                int result = JOptionPane.showOptionDialog(null, "Select the option : ", "Change case", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Cancel");
+                int result = JOptionPane.showOptionDialog(label, "Select the option", "Change case", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "Cancel");
                 if (result == JOptionPane.YES_OPTION) {
-                    // TODO get selected file's name and make it Uppercase
+                    // TODO get selected file's name and make it Uppercase                   System.out.println(fileName);
                 } else if (result == JOptionPane.NO_OPTION) {
                     // TODO get selected file's name and make it Lowercase
-                }
-                if (newString != null) {
-                    // TODO add actions to the table
                 }
             }
         });
