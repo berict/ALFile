@@ -129,19 +129,19 @@ public class MainForm extends JFrame {
         changeExtensionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField newExtention = new JTextField();
+                JTextField newExtension = new JTextField();
                 final JComponent[] inputs = new JComponent[]{
                         new JLabel("New extension"),
-                        newExtention
+                        newExtension
                 };
                 int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
                 if (result == JOptionPane.OK_OPTION) {
-                    System.out.println("Change extension to " + newExtention);
+                    System.out.println("Change extension to " + newExtension);
                 } else {
                     System.out.println("Result : " + result);
                 }
 
-                if (newExtention != null) {
+                if (newExtension != null) {
                     // TODO add actions to the table
                 }
             }
@@ -150,16 +150,20 @@ public class MainForm extends JFrame {
         changeCaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // center align -- failed
                 JLabel label = new JLabel("Select Option", SwingConstants.CENTER);
                 String[] options = new String[]{ "to Uppercase", "to Lowercase", "cancel" };
                 String title = "Change case";
                 String msg = "Select the option";
-                // TODO add input option
+                int row = table.getSelectedRow();
                 int result = JOptionPane.showOptionDialog(label, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
-                if (result == JOptionPane.YES_OPTION) {
-                    // TODO get selected file's name and make it Uppercase
-                } else if (result == JOptionPane.NO_OPTION) {
-                    // TODO get selected file's name and make it Lowercase
+                String oldString = table.getValueAt(row, 0).toString();
+                if (result == 0) {
+                    tableModel.setValueAt(oldString.toUpperCase(), row, 1);
+                } else if (result == 1) {
+                    tableModel.setValueAt(oldString.toLowerCase(), row, 1);
+                } else {
+                    // cancel
                 }
             }
         });
@@ -210,7 +214,7 @@ public class MainForm extends JFrame {
                     String msg = "There is no process option. Would you like to select it now?";
                     int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
                     if (result == JOptionPane.YES_OPTION) {
-                        // TODO process All Eventt
+                        // TODO process All Event
                     } else if (result == JOptionPane.NO_OPTION) {
                         // TODO process Selected Event
                     }

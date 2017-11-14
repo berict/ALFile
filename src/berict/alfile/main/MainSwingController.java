@@ -41,7 +41,7 @@ public class MainSwingController {
         table.setSize(500, 300);
         table.setRowHeight(30);
 
-        // Center Align
+        // center align
         DefaultTableCellRenderer align = new DefaultTableCellRenderer();
         align.setHorizontalAlignment(SwingConstants.LEFT);
         TableColumnModel columnModel = table.getColumnModel();
