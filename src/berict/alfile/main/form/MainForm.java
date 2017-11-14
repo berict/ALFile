@@ -26,6 +26,8 @@ public class MainForm extends JFrame {
     private JPanel centerPanel;
     private JTable table;
 
+    private ButtonGroup radioGroup;
+
     public static TableModel tableModel;
 
     public static int WINDOW_WIDTH = 960;
@@ -52,10 +54,13 @@ public class MainForm extends JFrame {
 
     private void setUI() {
         tableModel = new TableModel();
-
         table.setModel(tableModel);
         table.setSize(500, 300);
         table.setRowHeight(30);
+
+        radioGroup = new ButtonGroup();
+        radioGroup.add(processAllButton);
+        radioGroup.add(processSelectedButton);
 
         // Center Align
         DefaultTableCellRenderer align = new DefaultTableCellRenderer();
@@ -175,6 +180,29 @@ public class MainForm extends JFrame {
                 }
                 if (newString != null) {
                     // TODO add actions to the table
+                }
+            }
+        });
+
+        renumberButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // TODO get Selected file's names and numbering them
+            }
+        });
+
+        processButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (processAllButton.isSelected()){
+                    // TODO process All Event
+                    System.out.println("processAll is Selected");
+                } else if (processSelectedButton.isSelected()) {
+                    // TODO process Selected Event
+                    System.out.println("processSelected is Selected");
+                } else {
+                    // TODO make showConfirmDialog
+                    System.out.println("Nothing Selected");
                 }
             }
         });
