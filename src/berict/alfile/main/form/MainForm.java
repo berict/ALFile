@@ -2,6 +2,7 @@ package berict.alfile.main.form;
 
 import berict.alfile.file.FileTableItem;
 import berict.alfile.file.TableModel;
+import berict.alfile.file.TableModelListener;
 import lib.FileDrop;
 
 import javax.swing.*;
@@ -10,6 +11,9 @@ import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+
+import static berict.alfile.Main.DEBUG;
+import static javax.swing.JOptionPane.*;
 
 public class MainForm extends JFrame {
 
@@ -47,7 +51,8 @@ public class MainForm extends JFrame {
             // local theme
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            System.out.println("ok");
+            e.printStackTrace();
+            makeErrorAlert("Can't get system theme, using default theme.");
         }
         setUI();
     }
@@ -61,6 +66,7 @@ public class MainForm extends JFrame {
         radioGroup = new ButtonGroup();
         radioGroup.add(processAllButton);
         radioGroup.add(processSelectedButton);
+        processAllButton.setSelected(true);
 
         // center align
         DefaultTableCellRenderer align = new DefaultTableCellRenderer();
@@ -69,6 +75,8 @@ public class MainForm extends JFrame {
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setCellRenderer(align);
         }
+
+        tableModel.addTableModelListener(new TableModelListener());
 
         // drag and drop files
         new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
@@ -82,46 +90,83 @@ public class MainForm extends JFrame {
         replaceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField oldString = new JTextField();
-                JTextField newString = new JTextField();
-                final JComponent[] inputs = new JComponent[]{
-                        new JLabel("String to replace"),
-                        oldString,
-                        new JLabel("New string"),
-                        newString
-                };
-                int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
-                if (result == JOptionPane.OK_OPTION) {
-                    System.out.println(oldString.getText() + " > to > " + newString.getText());
-                } else {
-                    System.out.println("Result : " + result);
-                }
+                if (table.getRowCount() > 0) {
+                    // table has content
+                    JTextField oldString = new JTextField();
+                    JTextField newString = new JTextField();
 
-                if (table.getSelectedRows().length > 0) {
-                    if (oldString != null && newString != null) {
-                        for (int i : table.getSelectedRows()) {
-                            tableModel.get(i)
-                                    .getFile()
-                                    .replaceAll(oldString.getText(), newString.getText());
-                        }
-                    } else {
+                    ButtonGroup buttonGroup = new ButtonGroup();
+                    JRadioButton all = new JRadioButton("Replace all match");
+                    JRadioButton first = new JRadioButton("Replace only first match");
 
-                    }
-                } else {
-                    final JComponent[] label = new JComponent[]{
-                            new JLabel("No file was selected. Do you want to apply to all files?")
+                    buttonGroup.add(all);
+                    buttonGroup.add(first);
+                    all.setSelected(true);
+
+                    final JComponent[] inputs = new JComponent[]{
+                            new JLabel("String to replace"),
+                            oldString,
+                            new JLabel("New string"),
+                            newString,
+                            all, first
                     };
-                    if (JOptionPane.showConfirmDialog(null, label, "Error", JOptionPane.YES_NO_OPTION)
-                            == JOptionPane.YES_OPTION) {
-                        // apply to all
-                        for (int i = 0; i < table.getRowCount(); i++) {
-                            tableModel.get(i)
-                                    .getFile()
-                                    .replaceAll(oldString.getText(), newString.getText());
-                        }
-                    } else {
-                        System.out.println("Result : " + result);
-                    }
+
+                    makeDialog("Replace", inputs, OK_CANCEL_OPTION, OK_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (oldString.getText() != null && newString.getText() != null) {
+                                        // all filled
+                                        if (table.getSelectedRows().length > 0) {
+                                            // has selected rows
+                                            if (all.isSelected()) {
+                                                // replace all
+                                                for (int row : table.getSelectedRows()) {
+                                                    tableModel.get(row)
+                                                            .getFile()
+                                                            .replaceAll(oldString.getText(), newString.getText());
+                                                }
+                                            } else {
+                                                // replace first match
+                                                for (int row : table.getSelectedRows()) {
+                                                    tableModel.get(row)
+                                                            .getFile()
+                                                            .replaceFirst(oldString.getText(), newString.getText());
+                                                }
+                                            }
+                                            tableModel.update();
+                                        } else {
+                                            // doesn't have selected rows
+                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            if (all.isSelected()) {
+                                                                // replace all
+                                                                for (int row = 0; row < table.getRowCount(); row++) {
+                                                                    tableModel.get(row)
+                                                                            .getFile()
+                                                                            .replaceAll(oldString.getText(), newString.getText());
+                                                                }
+                                                            } else {
+                                                                // replace first match
+                                                                for (int row = 0; row < table.getRowCount(); row++) {
+                                                                    tableModel.get(row)
+                                                                            .getFile()
+                                                                            .replaceFirst(oldString.getText(), newString.getText());
+                                                                }
+                                                            }
+                                                            tableModel.update();
+                                                        }
+                                                    }, null);
+                                        }
+                                    } else {
+                                        makeErrorAlert("Fill out to continue");
+                                    }
+                                }
+                            }, null);
+                } else {
+                    makeErrorAlert("No file found");
                 }
             }
         });
@@ -129,20 +174,50 @@ public class MainForm extends JFrame {
         changeExtensionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField newExtension = new JTextField();
-                final JComponent[] inputs = new JComponent[]{
-                        new JLabel("New extension"),
-                        newExtension
-                };
-                int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
-                if (result == JOptionPane.OK_OPTION) {
-                    System.out.println("Change extension to " + newExtension);
-                } else {
-                    System.out.println("Result : " + result);
-                }
+                if (table.getRowCount() > 0) {
+                    // table has content
+                    JTextField newExtension = new JTextField();
+                    final JComponent[] inputs = new JComponent[]{
+                            new JLabel("New extension"),
+                            newExtension
+                    };
 
-                if (newExtension != null) {
-                    // TODO add actions to the table
+                    makeDialog("Change extension", inputs, OK_CANCEL_OPTION, OK_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (newExtension.getText() != null) {
+                                        // all filled
+                                        if (table.getSelectedRows().length > 0) {
+                                            // has selected rows
+                                            for (int row : table.getSelectedRows()) {
+                                                tableModel.get(row)
+                                                        .getFile()
+                                                        .replaceExtension(newExtension.getText());
+                                            }
+                                            tableModel.update();
+                                        } else {
+                                            // doesn't have selected rows
+                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            for (int row = 0; row < table.getRowCount(); row++) {
+                                                                tableModel.get(row)
+                                                                        .getFile()
+                                                                        .replaceExtension(newExtension.getText());
+                                                            }
+                                                            tableModel.update();
+                                                        }
+                                                    }, null);
+                                        }
+                                    } else {
+                                        makeErrorAlert("Fill out to continue");
+                                    }
+                                }
+                            }, null);
+                } else {
+                    makeErrorAlert("No file found");
                 }
             }
         });
@@ -150,20 +225,58 @@ public class MainForm extends JFrame {
         changeCaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // center align -- failed
-                JLabel label = new JLabel("Select Option", SwingConstants.CENTER);
-                String[] options = new String[]{ "to Uppercase", "to Lowercase", "cancel" };
-                String title = "Change case";
-                String msg = "Select the option";
-                int result = JOptionPane.showOptionDialog(label, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
-                int row = table.getSelectedRow();
-                String oldString = table.getValueAt(row, 0).toString();
-                if (result == 0) {
-                    tableModel.setValueAt(oldString.toUpperCase(), row, 1);
-                } else if (result == 1) {
-                    tableModel.setValueAt(oldString.toLowerCase(), row, 1);
+                if (table.getRowCount() > 0) {
+                    // table has content
+
+                    ButtonGroup buttonGroup = new ButtonGroup();
+                    JRadioButton upper = new JRadioButton("Rename to UPPERCASE");
+                    JRadioButton lower = new JRadioButton("Rename to lowercase");
+
+                    buttonGroup.add(upper);
+                    buttonGroup.add(lower);
+                    upper.setSelected(true);
+
+                    final JComponent[] inputs = new JComponent[]{
+                            new JLabel("New extension"),
+                            upper,
+                            lower
+                    };
+
+                    makeDialog("Change case", inputs, OK_CANCEL_OPTION, OK_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    boolean isUpper = upper.isSelected();
+                                    if (table.getSelectedRows().length > 0) {
+                                        // has selected rows
+                                        if (upper.isSelected()) {
+                                            for (int row : table.getSelectedRows()) {
+                                                tableModel.get(row)
+                                                        .getFile()
+                                                        .changeCase(isUpper);
+                                            }
+                                            tableModel.update();
+                                        } else {
+                                            // doesn't have selected rows
+                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            for (int row = 0; row < table.getRowCount(); row++) {
+                                                                tableModel.get(row)
+                                                                        .getFile()
+                                                                        .changeCase(isUpper);
+                                                            }
+                                                            tableModel.update();
+                                                        }
+                                                    }, null);
+                                        }
+                                    }
+                                }
+                            }, null);
+
                 } else {
-                    // cancel
+                    makeErrorAlert("No file found");
                 }
             }
         });
@@ -171,31 +284,68 @@ public class MainForm extends JFrame {
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField insertString = new JTextField();
-                final JComponent[] inputs = new JComponent[]{
-                        new JLabel("Insert String : "),
-                        insertString
-                };
-                String[] options = new String[] { "Insert to beginning", "Insert to end", "cancel" };
-                // TODO add input option
-                String title = "Insert String";
-                int result = JOptionPane.showOptionDialog(null, inputs, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
-                int row = table.getSelectedRow();
-                String oldString = table.getValueAt(row, 0).toString();
-                if (result == 0) {
-                    if (insertString != null) {
-                        table.setValueAt(insertString + oldString, row, 1);
-                        System.out.println("Result : " + insertString + oldString);
-                    } else {
+                if (table.getRowCount() > 0) {
+                    // table has content
+                    ButtonGroup buttonGroup = new ButtonGroup();
+                    JRadioButton front = new JRadioButton("Insert to front");
+                    JRadioButton back = new JRadioButton("Insert to back");
 
-                    }
-                } else if (result == 1) {
-                    if (insertString != null) {
-                        table.setValueAt(oldString + insertString, row, 1);
-                        System.out.println("Result : " + oldString + insertString);
-                    } else {
+                    JCheckBox containExtension = new JCheckBox("Include extensions");
+                    containExtension.setSelected(false);
 
-                    }
+                    buttonGroup.add(front);
+                    buttonGroup.add(back);
+                    front.setSelected(true);
+
+                    JTextField insertString = new JTextField();
+
+                    final JComponent[] inputs = new JComponent[]{
+                            new JLabel("String to insert"),
+                            insertString,
+                            front,
+                            back,
+                            containExtension
+                    };
+
+                    makeDialog("Insert", inputs, OK_CANCEL_OPTION, OK_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    System.out.println(insertString.getText());
+                                    if (insertString.getText() != null) {
+                                        boolean isFront = front.isSelected();
+                                        boolean isContainExtension = containExtension.isSelected();
+                                        if (table.getSelectedRows().length > 0) {
+                                            // has selected rows
+                                            for (int row : table.getSelectedRows()) {
+                                                tableModel.get(row)
+                                                        .getFile()
+                                                        .insert(insertString.getText(), isFront, isContainExtension);
+                                            }
+                                            tableModel.update();
+                                        } else {
+                                            // doesn't have selected rows
+                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            for (int row = 0; row < table.getRowCount(); row++) {
+                                                                tableModel.get(row)
+                                                                        .getFile()
+                                                                        .insert(insertString.getText(), isFront, isContainExtension);
+                                                            }
+                                                            tableModel.update();
+                                                        }
+                                                    }, null);
+                                        }
+                                    } else {
+                                        makeErrorAlert("Fill out to continue");
+                                    }
+                                }
+                            }, null);
+
+                } else {
+                    makeErrorAlert("No file found");
                 }
             }
         });
@@ -210,40 +360,62 @@ public class MainForm extends JFrame {
         processButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (processAllButton.isSelected()){
-                    // TODO process All Event
-                    System.out.println("Process : processAll is Selected");
-                } else if (processSelectedButton.isSelected()) {
-                    // TODO process Selected Event
-                    System.out.println("Process : processSelected is Selected");
-                } else {
-                    String[] options = new String[]{ "process All", "process Selected only", "cancel" };
-                    String title = "No process option";
-                    String msg = "There is no process option. Would you like to select it now?";
-                    int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
-                    if (result == JOptionPane.YES_OPTION) {
-                        // TODO process All Event
-                    } else if (result == JOptionPane.NO_OPTION) {
-                        // TODO process Selected Event
+                if (processAllButton.isSelected()) {
+                    if (DEBUG) {
+                        System.out.println("process all");
                     }
-                    System.out.println("Process : Nothing Selected");
+                    // TODO process All Event
+                } else if (processSelectedButton.isSelected()) {
+                    if (DEBUG) {
+                        System.out.println("process selected");
+                    }
+                    // TODO process Selected Event
                 }
             }
         });
     }
 
-    private void makeErrorDialog(){
-
+    private void makeDialog(String title, Object message,
+                            int optionType, int confirmAction,
+                            Runnable onConfirm, Runnable onCancel) {
+        showDialog(title, message, PLAIN_MESSAGE, optionType, confirmAction, onConfirm, onCancel);
     }
 
-    private void makeDialog(String title, String text, int optionType, int confirmAction, Runnable onConfirm, Runnable onCancel) {
-        final JComponent[] label = new JComponent[]{ new JLabel(text) };
-        if (JOptionPane.showConfirmDialog(null, label, title, optionType)
+    private void makeWarningDialog(Object message,
+                                   int optionType, int confirmAction,
+                                   Runnable onConfirm, Runnable onCancel) {
+        showDialog("Warning", message, WARNING_MESSAGE, optionType, confirmAction, onConfirm, onCancel);
+    }
+
+    private void makeCustomDialog(String title, Object message, int messageType,
+                                  int optionType, int confirmAction,
+                                  Runnable onConfirm, Runnable onCancel) {
+        showDialog(title, message, messageType, optionType, confirmAction, onConfirm, onCancel);
+    }
+
+    private void makeErrorAlert(String text) {
+        JOptionPane.showMessageDialog(null, text, "Error", ERROR_MESSAGE);
+    }
+
+    private void makeAlert(String title, String text, int messageType,
+                           int optionType, int confirmAction,
+                           Runnable onConfirm, Runnable onCancel) {
+        final JComponent[] label = new JComponent[]{new JLabel(text)};
+        showDialog(title, label, messageType, optionType, confirmAction, onConfirm, onCancel);
+    }
+
+    private void showDialog(String title, Object message, int messageType,
+                            int optionType, int confirmAction,
+                            Runnable onConfirm, Runnable onCancel) {
+        if (JOptionPane.showConfirmDialog(null, message, title, optionType, messageType)
                 == confirmAction) {
-            // apply to all
-            onConfirm.run();
+            if (onConfirm != null) {
+                onConfirm.run();
+            }
         } else {
-            onCancel.run();
+            if (onCancel != null) {
+                onCancel.run();
+            }
         }
     }
 }
