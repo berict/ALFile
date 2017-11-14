@@ -152,12 +152,22 @@ public class MainForm extends JFrame {
                 String title = "Change case";
                 String msg = "Select the option";
                 int result = JOptionPane.showOptionDialog(label, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
-                int row = table.getSelectedRow();
-                String oldString = table.getValueAt(row, 0).toString();
                 if (result == 0) {
-                    tableModel.setValueAt(oldString.toUpperCase(), row, 1);
+                    for (int row : table.getSelectedRows()) {
+                        tableModel.get(row)
+                                .getFile()
+                                .replaceAll(table.getValueAt(row, 0).toString(), table.getValueAt(row, 0).toString().toUpperCase());
+                        tableModel.fireTableDataChanged();
+                        System.out.println("Result : " + table.getValueAt(row, 0).toString().toUpperCase());
+                    }
                 } else if (result == 1) {
-                    tableModel.setValueAt(oldString.toLowerCase(), row, 1);
+                    for (int row : table.getSelectedRows()) {
+                        tableModel.get(row)
+                                .getFile()
+                                .replaceAll(table.getValueAt(row, 0).toString(), table.getValueAt(row, 0).toString().toLowerCase());
+                        tableModel.fireTableDataChanged();
+                        System.out.println("Result : " + table.getValueAt(row, 0).toString().toLowerCase());
+                    }
                 }
             }
         });
@@ -178,6 +188,7 @@ public class MainForm extends JFrame {
                         tableModel.get(row)
                                 .getFile()
                                 .replaceAll(table.getValueAt(row, 0).toString(), insertString.getText() + table.getValueAt(row, 0));
+                        tableModel.fireTableDataChanged();
                         System.out.println("Result : " + insertString.getText() + table.getValueAt(row, 0));
                     }
                 } else if (result == 1) {
@@ -185,6 +196,7 @@ public class MainForm extends JFrame {
                         tableModel.get(row)
                                 .getFile()
                                 .replaceAll(table.getValueAt(row, 0).toString(), table.getValueAt(row, 0) + insertString.getText());
+                        tableModel.fireTableDataChanged();
                         System.out.println("Result : " + table.getValueAt(row, 0) + insertString.getText());
                     }
                 }
