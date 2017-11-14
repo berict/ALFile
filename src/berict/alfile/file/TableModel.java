@@ -7,7 +7,8 @@ import static berict.alfile.Main.DEBUG;
 
 public class TableModel extends AbstractTableModel {
     private Object[][] data = new Object[0][3];
-    private ArrayList<FileTableItem> dataList = new ArrayList<>();
+
+    public static ArrayList<FileTableItem> dataList = new ArrayList<>();
 
     // example from @link http://www.java2s.com/Code/Java/Swing-JFC/TablewithacustomTableModel.htm
     private String[] columnNames = {
@@ -32,6 +33,9 @@ public class TableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
+//        if (DEBUG) {
+//            System.out.println("getValueAt(" + row + ", " + col + ")");
+//        }
         return data[row][col];
     }
 
@@ -44,13 +48,17 @@ public class TableModel extends AbstractTableModel {
         }
     }
 
-    public void set(int column, FileTableItem item) {
-        dataList.set(column, item);
+    public void set(int row, FileTableItem item) {
+        dataList.set(row, item);
         updateFromDataList();
     }
 
-    public FileTableItem get(int index) {
-        return dataList.get(index);
+    public void update() {
+        updateFromDataList();
+    }
+
+    public FileTableItem get(int row) {
+        return dataList.get(row);
     }
 
     private void updateFromDataList() {
