@@ -179,8 +179,7 @@ public class MainForm extends JFrame {
                 String[] options = new String[] { "Insert to beginning", "Insert to end", "cancel" };
                 // TODO add input option
                 String title = "Insert String";
-                String msg = "Input String : ";
-                int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
+                int result = JOptionPane.showOptionDialog(null, inputs, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
                 int row = table.getSelectedRow();
                 String oldString = table.getValueAt(row, 0).toString();
                 if (result == JOptionPane.YES_OPTION) {
