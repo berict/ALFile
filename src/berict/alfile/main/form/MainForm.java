@@ -171,27 +171,30 @@ public class MainForm extends JFrame {
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JTextField newString = new JTextField();
+                JTextField insertString = new JTextField();
                 final JComponent[] inputs = new JComponent[]{
-                        new JLabel("Insert String"),
-                        newString
+                        new JLabel("Insert String : "),
+                        insertString
                 };
                 String[] options = new String[] { "Insert to beginning", "Insert to end", "cancel" };
                 // TODO add input option
                 String title = "Insert String";
-                String msg = "Input String : ";
-                int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
+                int result = JOptionPane.showOptionDialog(null, inputs, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
                 int row = table.getSelectedRow();
                 String oldString = table.getValueAt(row, 0).toString();
-                if (result == JOptionPane.YES_OPTION) {
-                    if (newString != null) {
-                        table.setValueAt(oldString + newString, row, 1);
-                        System.out.println("Result : " + newString + oldString);
+                if (result == 0) {
+                    if (insertString != null) {
+                        table.setValueAt(insertString + oldString, row, 1);
+                        System.out.println("Result : " + insertString + oldString);
+                    } else {
+
                     }
-                } else if (result == JOptionPane.NO_OPTION) {
-                    if (newString != null) {
-                        table.setValueAt(newString + oldString, row, 1);
-                        System.out.println("Result : " + oldString + newString);
+                } else if (result == 1) {
+                    if (insertString != null) {
+                        table.setValueAt(oldString + insertString, row, 1);
+                        System.out.println("Result : " + oldString + insertString);
+                    } else {
+
                     }
                 }
             }
