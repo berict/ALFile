@@ -20,6 +20,9 @@
               <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <focusPainted value="false"/>
               <text value="Process"/>
             </properties>
           </component>
@@ -41,6 +44,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <focusPainted value="false"/>
                   <text value="Replace"/>
                 </properties>
               </component>
@@ -49,6 +53,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <focusPainted value="false"/>
                   <text value="Change extension"/>
                 </properties>
               </component>
@@ -57,6 +62,7 @@
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <focusPainted value="false"/>
                   <text value="UPPER / lower case"/>
                 </properties>
               </component>
@@ -101,6 +107,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <focusPainted value="false"/>
                   <text value="Renumber"/>
                 </properties>
               </component>
@@ -109,6 +116,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <focusPainted value="false"/>
                   <text value="Insert front / end"/>
                 </properties>
               </component>

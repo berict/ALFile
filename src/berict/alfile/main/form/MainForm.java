@@ -10,7 +10,6 @@ import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 
 public class MainForm extends JFrame {
 
@@ -27,6 +26,8 @@ public class MainForm extends JFrame {
     private JPanel centerPanel;
     private JTable table;
 
+    public static TableModel tableModel;
+
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
 
@@ -35,35 +36,22 @@ public class MainForm extends JFrame {
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle("AlFile");
 
-        replaceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JTextField oldString = new JTextField();
-                JTextField newString = new JTextField();
-                final JComponent[] inputs = new JComponent[]{
-                        new JLabel("String to replace"),
-                        oldString,
-                        new JLabel("New string"),
-                        newString
-                };
-                int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
-                if (result == JOptionPane.OK_OPTION) {
-                    System.out.println(oldString + " > to > " + newString);
-                } else {
-                    System.out.println("Result : " + result);
-                }
+        ImageIcon img = new ImageIcon("icon.png");
+        setIconImage(img.getImage());
 
-                if (oldString != null && newString != null) {
-                    // TODO add actions to the table
-                }
-            }
-        });
+        try {
+            // local theme
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.out.println("ok");
+        }
         setUI();
     }
 
     private void setUI() {
-        TableModel tableModel = new TableModel();
+        tableModel = new TableModel();
 
         table.setModel(tableModel);
         table.setSize(500, 300);
@@ -85,5 +73,86 @@ public class MainForm extends JFrame {
                 }
             }
         });
+
+        replaceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField oldString = new JTextField();
+                JTextField newString = new JTextField();
+                final JComponent[] inputs = new JComponent[]{
+                        new JLabel("String to replace"),
+                        oldString,
+                        new JLabel("New string"),
+                        newString
+                };
+                int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    System.out.println(oldString.getText() + " > to > " + newString.getText());
+                } else {
+                    System.out.println("Result : " + result);
+                }
+
+                if (table.getSelectedRows().length > 0) {
+                    if (oldString != null && newString != null) {
+                        for (int i : table.getSelectedRows()) {
+                            tableModel.get(i)
+                                    .getFile()
+                                    .replaceAll(oldString.getText(), newString.getText());
+                        }
+                    } else {
+
+                    }
+                } else {
+                    final JComponent[] label = new JComponent[]{
+                            new JLabel("No file was selected. Do you want to apply to all files?")
+                    };
+                    if (JOptionPane.showConfirmDialog(null, label, "Error", JOptionPane.YES_NO_OPTION)
+                            == JOptionPane.YES_OPTION) {
+                        // apply to all
+                        for (int i = 0; i < table.getRowCount(); i++) {
+                            tableModel.get(i)
+                                    .getFile()
+                                    .replaceAll(oldString.getText(), newString.getText());
+                        }
+                    } else {
+                        System.out.println("Result : " + result);
+                    }
+                }
+            }
+        });
+
+        changeExtensionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField newString = new JTextField();
+                final JComponent[] inputs = new JComponent[]{
+                        new JLabel("New extension"),
+                        newString
+                };
+                int result = JOptionPane.showConfirmDialog(null, inputs, "Replace", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    System.out.println("Change extension to " + newString);
+                } else {
+                    System.out.println("Result : " + result);
+                }
+
+                if (newString != null) {
+                    // TODO add actions to the table
+                }
+            }
+        });
+    }
+
+    private void makeErrorDialog()
+
+    private void makeDialog(String title, String text, int optionType, int confirmAction, Runnable onConfirm, Runnable onCancel) {
+        final JComponent[] label = new JComponent[]{ new JLabel(text) };
+        if (JOptionPane.showConfirmDialog(null, label, title, optionType)
+                == confirmAction) {
+            // apply to all
+            onConfirm.run();
+        } else {
+            onCancel.run();
+        }
     }
 }
