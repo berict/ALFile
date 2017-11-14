@@ -98,14 +98,10 @@ public class MainForm extends JFrame {
                 }
 
                 if (table.getSelectedRows().length > 0) {
-                    if (oldString != null && newString != null) {
-                        for (int i : table.getSelectedRows()) {
-                            tableModel.get(i)
-                                    .getFile()
-                                    .replaceAll(oldString.getText(), newString.getText());
-                        }
-                    } else {
-
+                    for (int i : table.getSelectedRows()) {
+                        tableModel.get(i)
+                                .getFile()
+                                .replaceAll(oldString.getText(), newString.getText());
                     }
                 } else {
                     final JComponent[] label = new JComponent[]{
@@ -162,8 +158,6 @@ public class MainForm extends JFrame {
                     tableModel.setValueAt(oldString.toUpperCase(), row, 1);
                 } else if (result == 1) {
                     tableModel.setValueAt(oldString.toLowerCase(), row, 1);
-                } else {
-                    // cancel
                 }
             }
         });
@@ -177,24 +171,21 @@ public class MainForm extends JFrame {
                         insertString
                 };
                 String[] options = new String[] { "Insert to beginning", "Insert to end", "cancel" };
-                // TODO add input option
                 String title = "Insert String";
                 int result = JOptionPane.showOptionDialog(null, inputs, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
-                int row = table.getSelectedRow();
-                String oldString = table.getValueAt(row, 0).toString();
                 if (result == 0) {
-                    if (insertString != null) {
-                        table.setValueAt(insertString + oldString, row, 1);
-                        System.out.println("Result : " + insertString + oldString);
-                    } else {
-
+                    for (int row : table.getSelectedRows()) {
+                        tableModel.get(row)
+                                .getFile()
+                                .replaceAll(table.getValueAt(row, 0).toString(), insertString.getText() + table.getValueAt(row, 0));
+                        System.out.println("Result : " + insertString.getText() + table.getValueAt(row, 0));
                     }
                 } else if (result == 1) {
-                    if (insertString != null) {
-                        table.setValueAt(oldString + insertString, row, 1);
-                        System.out.println("Result : " + oldString + insertString);
-                    } else {
-
+                    for (int row : table.getSelectedRows()) {
+                        tableModel.get(row)
+                                .getFile()
+                                .replaceAll(table.getValueAt(row, 0).toString(), table.getValueAt(row, 0) + insertString.getText());
+                        System.out.println("Result : " + table.getValueAt(row, 0) + insertString.getText());
                     }
                 }
             }
