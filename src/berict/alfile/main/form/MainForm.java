@@ -155,8 +155,8 @@ public class MainForm extends JFrame {
                 String[] options = new String[]{ "to Uppercase", "to Lowercase", "cancel" };
                 String title = "Change case";
                 String msg = "Select the option";
-                int row = table.getSelectedRow();
                 int result = JOptionPane.showOptionDialog(label, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
+                int row = table.getSelectedRow();
                 String oldString = table.getValueAt(row, 0).toString();
                 if (result == 0) {
                     tableModel.setValueAt(oldString.toUpperCase(), row, 1);
@@ -181,13 +181,18 @@ public class MainForm extends JFrame {
                 String title = "Insert String";
                 String msg = "Input String : ";
                 int result = JOptionPane.showOptionDialog(null, msg, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, "cancel");
+                int row = table.getSelectedRow();
+                String oldString = table.getValueAt(row, 0).toString();
                 if (result == JOptionPane.YES_OPTION) {
-                    System.out.println("Result : " + newString + result);
-                } else if (result == JOptionPane.NO_OPTION){
-                    System.out.println("Result : " + result + newString);
-                }
-                if (newString != null) {
-                    // TODO add actions to the table
+                    if (newString != null) {
+                        table.setValueAt(oldString + newString, row, 1);
+                        System.out.println("Result : " + newString + oldString);
+                    }
+                } else if (result == JOptionPane.NO_OPTION) {
+                    if (newString != null) {
+                        table.setValueAt(newString + oldString, row, 1);
+                        System.out.println("Result : " + oldString + newString);
+                    }
                 }
             }
         });
