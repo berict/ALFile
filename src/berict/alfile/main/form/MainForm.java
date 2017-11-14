@@ -10,6 +10,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 
 import static berict.alfile.Main.DEBUG;
@@ -76,6 +78,27 @@ public class MainForm extends JFrame {
             columnModel.getColumn(i).setCellRenderer(align);
         }
 
+        table.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) { }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3)
+                    onMouseRightClick();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) { }
+
+            @Override
+            public void mouseEntered(MouseEvent e) { }
+
+            @Override
+            public void mouseExited(MouseEvent e) { }
+
+        });
         tableModel.addTableModelListener(new TableModelListener());
 
         // drag and drop files
@@ -379,6 +402,10 @@ public class MainForm extends JFrame {
                 }
             }
         });
+    }
+
+    private void onMouseRightClick(){
+        System.out.println("Right button clicked!");
     }
 
     private void makeDialog(String title, Object message,
