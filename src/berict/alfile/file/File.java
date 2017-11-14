@@ -101,6 +101,14 @@ public class File extends java.io.File {
         }
     }
 
+    public void changeCase(boolean isUpper) {
+        if (isUpper) {
+            toUpperCase();
+        } else {
+            toLowerCase();
+        }
+    }
+
     public void replaceAll(String regex, String replacement) {
         this.fileName = fileName.replaceAll(regex, replacement);
     }
@@ -116,6 +124,15 @@ public class File extends java.io.File {
             this.fileName = names[0] + "." + replacement;
         } else {
             System.out.println("No filename found");
+        }
+    }
+
+    public void insert(String value, boolean isFront, boolean containExtension) {
+        if (isFront) {
+            insertAtStart(value);
+        } else {
+            // default to not contain extension
+            insertAtEnd(value, containExtension);
         }
     }
 
