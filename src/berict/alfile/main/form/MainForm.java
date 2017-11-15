@@ -8,6 +8,7 @@ import lib.FileDrop;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -79,6 +80,9 @@ public class MainForm extends JFrame {
             columnModel.getColumn(i).setCellRenderer(align);
         }
 
+        final int[] start = new int[1];
+        final int[] end = new int[1];
+
         table.addMouseListener(new MouseListener() {
 
             @Override
@@ -88,10 +92,67 @@ public class MainForm extends JFrame {
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3)
                     onMouseRightClick();
+                start[0] = table.rowAtPoint(e.getPoint());
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) { }
+            public void mouseReleased(MouseEvent e) {
+                end[0] = table.rowAtPoint(e.getPoint());
+                if ((start[0] >= 0 && start[0] < table.getRowCount()) &&
+                        (end[0] >= 0 && end[0] < table.getRowCount())) {
+                    table.setRowSelectionInterval(start[0], end[0]);
+                } else {
+                     table.clearSelection();
+                }
+
+                int row = table.getSelectedRow();
+                if (row < 0)
+                    return;
+                
+                FileTableItem selectedItem = tableModel.get(row);
+
+                if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
+                    JPopupMenu popup = new JPopupMenu("Edit");
+                    JMenuItem revert = new JMenuItem("Revert changes");
+                    JMenuItem remove = new JMenuItem("Remove from list");
+                    JMenuItem process = new JMenuItem("Process");
+
+                    revert.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            selectedItem.getFile().revert();
+                            tableModel.update();
+                            if (DEBUG) {
+                                System.out.println("Menu.revert index=" + row);
+                            }
+                        }
+                    });
+
+                    remove.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            tableModel.remove(row);
+                            if (DEBUG) {
+                                System.out.println("Menu.remove index=" + row);
+                            }
+                        }
+                    });
+
+                    process.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            selectedItem.getFile().apply(tableModel);
+                            if (DEBUG) {
+                                System.out.println("Menu.process index=" + row);
+                            }
+                        }
+                    });
+
+                    popup.add(revert);
+                    popup.add(remove);
+                    popup.add(process);
+                    popup.show(e.getComponent(), e.getX(), e.getY());
+                }}
 
             @Override
             public void mouseEntered(MouseEvent e) { }

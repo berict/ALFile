@@ -204,11 +204,12 @@ public class File extends java.io.File {
         }
     }
 
-    public void apply(TableModel tableModel) {
+    public boolean apply(TableModel tableModel) {
         // TODO add move()
-        rename(this);
+        boolean result = rename(this);
         original = new java.io.File(getFullPath());
         tableModel.update();
+        return result;
     }
 
     public java.io.File getOriginal() {

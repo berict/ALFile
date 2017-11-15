@@ -53,6 +53,11 @@ public class TableModel extends AbstractTableModel {
         updateFromDataList();
     }
 
+    public void remove(int row) {
+        dataList.remove(row);
+        updateFromDataList();
+    }
+
     public void update() {
         updateFromDataList();
     }
