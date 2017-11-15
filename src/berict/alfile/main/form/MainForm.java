@@ -388,7 +388,7 @@ public class MainForm extends JFrame {
                     for (int row = 0; row < table.getRowCount(); row++) {
                         tableModel.get(row)
                                 .getFile()
-                                .apply();
+                                .apply(tableModel);
                     }
                 } else if (processSelectedButton.isSelected()) {
                     if (DEBUG) {
@@ -397,9 +397,14 @@ public class MainForm extends JFrame {
                     for (int row : table.getSelectedRows()) {
                         tableModel.get(row)
                                 .getFile()
-                                .apply();
+                                .apply(tableModel);
                     }
                 }
+                // refresh table
+//                for (int row : table.getSelectedRows()) {
+//                    String fileName
+//                    tableModel.update();
+//                }
             }
         });
     }
