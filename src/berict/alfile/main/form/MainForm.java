@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Objects;
 
 import static berict.alfile.Main.DEBUG;
 import static javax.swing.JOptionPane.*;
@@ -101,11 +102,19 @@ public class MainForm extends JFrame {
         });
         tableModel.addTableModelListener(new TableModelListener());
 
+        String[] fileNameList = new String[table.getRowCount() + 1];
         // drag and drop files
         new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
             public void filesDropped(java.io.File[] files) {
                 for (File file : files) {
-                    tableModel.add(new FileTableItem(file));
+                    for (int i = 0; i < fileNameList.length; i++) {
+                        if (Objects.equals(file.getName(), fileNameList[i])) {
+                            System.out.println("File name " + fileNameList[i] + " is already exist");
+                        } else {
+                            tableModel.add(new FileTableItem(file));
+                            fileNameList[i] = file.getName();
+                        }
+                    }
                 }
             }
         });
@@ -400,11 +409,6 @@ public class MainForm extends JFrame {
                                 .apply(tableModel);
                     }
                 }
-                // refresh table
-//                for (int row : table.getSelectedRows()) {
-//                    String fileName
-//                    tableModel.update();
-//                }
             }
         });
     }
