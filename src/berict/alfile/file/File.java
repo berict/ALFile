@@ -32,7 +32,7 @@ public class File extends java.io.File {
     // path + fileName returns the whole absolutePath
 
     // backup for the changed file objects
-    private final java.io.File original;
+    private java.io.File original;
 
     public File(String absolutePath) {
         super(absolutePath);
@@ -204,9 +204,11 @@ public class File extends java.io.File {
         }
     }
 
-    public void apply() {
+    public void apply(TableModel tableModel) {
         // TODO add move()
         rename(this);
+        original = new java.io.File(getFullPath());
+        tableModel.update();
     }
 
     public java.io.File getOriginal() {
