@@ -42,8 +42,12 @@ public class MainForm extends JFrame {
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
 
+    public static int WINDOW_MIN_WIDTH = 500;
+    public static int WINDOW_MIN_HEIGHT = 300;
+
     public MainForm() {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        setMinimumSize(new Dimension(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT));
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
