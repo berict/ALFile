@@ -9,9 +9,9 @@ import lib.FileDrop;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.*;
-import java.io.File;
 
 import static berict.alfile.Main.DEBUG;
+import static berict.alfile.file.File.SEPARATOR;
 import static javax.swing.JOptionPane.*;
 
 public class MainForm extends JFrame {
@@ -260,7 +260,7 @@ public class MainForm extends JFrame {
         new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
             public void filesDropped(java.io.File[] files) {
                 int duplicateCount = 0;
-                for (File file : files) {
+                for (java.io.File file : files) {
                     if (tableModel.search(file.getAbsolutePath()) < 0) {
                         tableModel.add(new FileTableItem(file));
                     } else {
@@ -539,14 +539,174 @@ public class MainForm extends JFrame {
             }
         });
 
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem replaceWhitespace = new JMenuItem("Replace whitespace"); // #14
+        JMenuItem pathToFileName = new JMenuItem("Path to file name"); // #13
+        JMenuItem toAscii = new JMenuItem("File name to ASCII"); // #15
+
+        replaceWhitespace.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField textField = new JTextField();
+                textField.setText("_");
+                JComponent inputs[] = new JComponent[]{
+                        new JLabel("New whitespace character"),
+                        textField
+                };
+
+                makeDialog(replaceWhitespace.getText(), inputs, OK_CANCEL_OPTION, OK_OPTION,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                String input = textField.getText();
+                                if (input != null) {
+                                    if (input.equals(" ")) {
+                                        // no changes
+                                        makeErrorAlert("No changes found");
+                                    } else {
+                                        if (table.getSelectedRows().length > 0) {
+                                            // has selected rows
+                                            for (int row : table.getSelectedRows()) {
+                                                tableModel.get(row)
+                                                        .getFile()
+                                                        .replaceAll(" ", input);
+                                            }
+                                            tableModel.update();
+                                        } else {
+                                            // doesn't have selected rows
+                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            for (int row = 0; row < table.getRowCount(); row++) {
+                                                                tableModel.get(row)
+                                                                        .getFile()
+                                                                        .replaceAll(" ", input);
+                                                            }
+                                                            tableModel.update();
+                                                        }
+                                                    }, null);
+                                        }
+                                    }
+                                } else {
+                                    makeErrorAlert("Fill out to continue");
+                                }
+                            }
+                        }, null);
+            }
+        });
+
+        pathToFileName.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTextField textField = new JTextField();
+                textField.setText("#");
+
+                JRadioButton insertToStart = new JRadioButton("Insert parent folder name to start");
+                JRadioButton replaceAll = new JRadioButton("Replace entire file name");
+                insertToStart.setSelected(true);
+
+                ButtonGroup buttonGroup = new ButtonGroup();
+                buttonGroup.add(insertToStart);
+                buttonGroup.add(replaceAll);
+
+                JComponent inputs[] = new JComponent[]{
+                        new JLabel("Directory separator"),
+                        textField,
+                        insertToStart,
+                        replaceAll
+                };
+
+                makeDialog(pathToFileName.getText(), inputs, OK_CANCEL_OPTION, OK_OPTION,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                String directorySeparator = textField.getText();
+                                boolean isInsertToStart = insertToStart.isSelected();
+                                if (table.getSelectedRows().length > 0) {
+                                    // has selected rows
+                                    for (int row : table.getSelectedRows()) {
+                                        FileTableItem item = tableModel.get(row);
+                                        if (isInsertToStart) {
+                                            item.getFile().insertAtStart(item.getFile().getParentFile().getName() + directorySeparator);
+                                        } else {
+                                            // replace all text to the path
+                                            item.getFile().setName(
+                                                    item.getFile().getFullPath().replace(
+                                                            SEPARATOR, directorySeparator
+                                                    ), true
+                                            );
+                                        }
+                                        tableModel.set(row, item);
+                                    }
+                                    tableModel.update();
+                                } else {
+                                    // doesn't have selected rows
+                                    makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    for (int row = 0; row < table.getRowCount(); row++) {
+                                                        FileTableItem item = tableModel.get(row);
+                                                        if (isInsertToStart) {
+                                                            item.getFile().insertAtStart(item.getFile().getParentFile().getName() + directorySeparator);
+                                                        } else {
+                                                            // replace all text to the path
+                                                            item.getFile().setName(
+                                                                    item.getFile().getFullPath().replace(
+                                                                            SEPARATOR, directorySeparator
+                                                                    ), true
+                                                            );
+                                                        }
+                                                        tableModel.set(row, item);
+                                                    }
+                                                    tableModel.update();
+                                                }
+                                            }, null);
+                                }
+                            }
+                        }, null);
+            }
+        });
+
+        toAscii.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                makeWarningDialog("This will remove non-ASCII characters. Continue?", YES_NO_OPTION, YES_OPTION,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (table.getSelectedRows().length > 0) {
+                                    // has selected rows
+                                    for (int row : table.getSelectedRows()) {
+                                        tableModel.get(row).getFile().replaceAll("\\P{Print}", "");
+                                    }
+                                    tableModel.update();
+                                } else {
+                                    // doesn't have selected rows
+                                    makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    for (int row = 0; row < table.getRowCount(); row++) {
+                                                        tableModel.get(row).getFile().replaceAll("\\P{Print}", "");
+                                                    }
+                                                    tableModel.update();
+                                                }
+                                            }, null);
+                                }
+                            }
+                        }, null);
+            }
+        });
+
+        popup.add(replaceWhitespace);
+        popup.add(pathToFileName);
+        popup.add(toAscii);
+
         advancedButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                JPopupMenu popup = new JPopupMenu("Edit");
-                JMenuItem replaceWhitespace = new JMenuItem("Replace whitespace");
-
-                popup.add(replaceWhitespace);
                 popup.show(advancedButton, advancedButton.getWidth(), 0);
             }
         });
