@@ -27,7 +27,12 @@ public class TableModelRenderer extends DefaultTableCellRenderer {
             component.setForeground(Color.BLACK);
             setToolTipText(null);
             if (column == 1) {
-                if (tableModel.get(row).isModified()) {
+                if (tableModel.get(row).hasDuplicate()) {
+                    // duplicate found
+                    component.setFont(new Font("Default", Font.ITALIC, 12));
+                    component.setForeground(Color.RED);
+                    setToolTipText("Duplicate found");
+                } else if (tableModel.get(row).isModified()) {
                     component.setFont(new Font("Default", Font.BOLD | Font.ITALIC, 12));
                     setToolTipText("Changed file");
                 }

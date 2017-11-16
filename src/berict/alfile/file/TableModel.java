@@ -75,6 +75,32 @@ public class TableModel extends AbstractTableModel {
         return false;
     }
 
+    public boolean hasDuplicate() {
+        boolean duplicate = false;
+        for (FileTableItem item : dataList) {
+            if (item.hasDuplicate()) {
+                duplicate = true;
+                break;
+            }
+        }
+        return duplicate;
+    }
+
+    public boolean hasDuplicate(int row[]) {
+        boolean duplicate = false;
+        for (int index : row) {
+            if (dataList.get(index).hasDuplicate()) {
+                duplicate = true;
+                break;
+            }
+        }
+        return duplicate;
+    }
+
+    public boolean hasDuplicate(int row) {
+        return dataList.get(row).hasDuplicate();
+    }
+
     public int search(String path) {
         for (int i = 0; i < dataList.size(); i++) {
             FileTableItem item = dataList.get(i);

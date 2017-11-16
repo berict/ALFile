@@ -9,7 +9,6 @@ import lib.FileDrop;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.*;
-import java.io.File;
 
 import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.File.*;
@@ -738,39 +737,40 @@ public class MainForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (processAllButton.isSelected()) {
-                    if (DEBUG) {
-                        System.out.println("process all");
-                    }
-                    for (int row = 0; row < table.getRowCount(); row++) {
-                        process(row);
+                    if (!tableModel.hasDuplicate()) {
+                        if (DEBUG) {
+                            System.out.println("process all");
+                        }
+                        for (int row = 0; row < table.getRowCount(); row++) {
+                            process(row);
+                        }
+                    } else {
+                        makeErrorAlert("Duplicated file name found");
                     }
                 } else if (processSelectedButton.isSelected()) {
-                    if (DEBUG) {
-                        System.out.println("process selected");
-                    }
-                    for (int row : table.getSelectedRows()) {
-                        process(row);
+                    if (!tableModel.hasDuplicate(table.getSelectedRow())) {
+                        if (DEBUG) {
+                            System.out.println("process selected");
+                        }
+                        for (int row : table.getSelectedRows()) {
+                            process(row);
+                        }
+                    } else {
+                        makeErrorAlert("Duplicated file name found");
                     }
                 }
             }
         });
     }
 
-    private void process(int row) {
-        String path = tableModel.get(row).getFile().getParent();
-        System.out.println("File path : " + path);
-        File dirFile = new File(path);
-        File[] pathFiles = dirFile.listFiles();
-        for (File file : pathFiles) {
-            if (file.getName().equals(tableModel.getValueAt(row, 1))) {
-                makeErrorAlert("File name '" + file.getName() + "' already exist.");
-                System.out.println("File name " + file.getName() + " already exist.");
-                break;
-            } else {
-                tableModel.get(row)
-                        .getFile()
-                        .apply(tableModel);
-            }
+    private boolean process(int row) {
+        if (tableModel.get(row)
+                .getFile()
+                .apply(tableModel)) {
+            // TODO add things
+            return true;
+        } else {
+            return false;
         }
     }
 

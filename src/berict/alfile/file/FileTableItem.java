@@ -1,5 +1,7 @@
 package berict.alfile.file;
 
+import static berict.alfile.file.TableModel.dataList;
+
 public class FileTableItem {
 
     private File file;
@@ -30,6 +32,21 @@ public class FileTableItem {
 
     public boolean isModified() {
         return file.isModified();
+    }
+
+    public boolean hasDuplicate() {
+        boolean duplicate = false;
+        for (FileTableItem item : dataList) {
+            File itemFile = item.getFile();
+            if (!itemFile.getOriginal().getAbsolutePath().equals(file.getOriginal().getAbsolutePath())
+                    && itemFile.getFullPath().equals(file.getFullPath())
+                    && itemFile.getParent().equals(file.getParent())) {
+                // different file but same output name
+                duplicate = true;
+                break;
+            }
+        }
+        return duplicate;
     }
 
     public boolean exists() {
