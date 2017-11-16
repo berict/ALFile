@@ -12,6 +12,7 @@ public class TableModel extends AbstractTableModel {
 
     // example from @link http://www.java2s.com/Code/Java/Swing-JFC/TablewithacustomTableModel.htm
     private String[] columnNames = {
+            "Type",
             "Original File names",
             "Changed File names",
             "Location"
@@ -62,14 +63,73 @@ public class TableModel extends AbstractTableModel {
         updateFromDataList();
     }
 
+    public int size() {
+        return dataList.size();
+    }
+
     public FileTableItem get(int row) {
         return dataList.get(row);
+    }
+
+    public boolean isModified(int row[]) {
+        for (int i : row) {
+            if (dataList.get(i).isModified()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDuplicate() {
+        boolean duplicate = false;
+        for (FileTableItem item : dataList) {
+            if (item.hasDuplicate()) {
+                duplicate = true;
+                break;
+            }
+        }
+        return duplicate;
+    }
+
+    public boolean hasDuplicate(int row[]) {
+        boolean duplicate = false;
+        for (int index : row) {
+            if (dataList.get(index).hasDuplicate()) {
+                duplicate = true;
+                break;
+            }
+        }
+        return duplicate;
+    }
+
+    public boolean hasDuplicate(int row) {
+        return dataList.get(row).hasDuplicate();
+    }
+
+    public int search(String path) {
+        for (int i = 0; i < dataList.size(); i++) {
+            FileTableItem item = dataList.get(i);
+            if (item.getFile().getFullPath().equals(path)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void updateFromDataList() {
         // update the data
         data = getData();
         fireTableDataChanged();
+    }
+
+    public int getModifiedCount() {
+        int modifiedCount = 0;
+        for (FileTableItem item : dataList) {
+            if (item.isModified()) {
+                modifiedCount++;
+            }
+        }
+        return modifiedCount;
     }
 
     private Object[][] getData() {
@@ -94,7 +154,7 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return column == 1;
+        return column == 2;
     }
 
     public void setValueAt(Object value, int row, int col) {
