@@ -210,6 +210,7 @@ public class File extends java.io.File {
         tableModel.update();
     }
 
+    // added
     public void removeRows(int startRow, int endRow) {
         tableModel.fireTableRowsDeleted(startRow, endRow);
     }
