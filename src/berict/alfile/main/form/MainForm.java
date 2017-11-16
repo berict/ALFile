@@ -467,8 +467,9 @@ public class MainForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 for (int row : table.getSelectedRows()) {
-                    tableModel.get(row);
-                    tableModel.fireTableRowsDeleted(row, row);
+                    tableModel.get(row)
+                            .getFile()
+                            .removeRows(row, row);
                     System.out.println("Selected row " + row + " is removed.");
                 }
             }

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.text.NumberFormat;
 
 import static berict.alfile.file.FileProcessor.rename;
+import static berict.alfile.main.form.MainForm.tableModel;
 
 public class File extends java.io.File {
 
@@ -207,6 +208,10 @@ public class File extends java.io.File {
         rename(this);
         original = new java.io.File(getFullPath());
         tableModel.update();
+    }
+
+    public void removeRows(int startRow, int endRow) {
+        tableModel.fireTableRowsDeleted(startRow, endRow);
     }
 
     public java.io.File getOriginal() {
