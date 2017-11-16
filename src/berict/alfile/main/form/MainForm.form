@@ -58,13 +58,13 @@
                   <text value="Change extension"/>
                 </properties>
               </component>
-              <component id="c53cc" class="javax.swing.JButton" binding="renumberButton">
+              <component id="c53cc" class="javax.swing.JButton" binding="advancedButton">
                 <constraints>
                   <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <focusPainted value="false"/>
-                  <text value="Renumber"/>
+                  <text value="Advanced"/>
                 </properties>
               </component>
               <component id="2607f" class="javax.swing.JButton" binding="insertButton">

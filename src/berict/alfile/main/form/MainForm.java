@@ -22,7 +22,7 @@ public class MainForm extends JFrame {
     private JButton changeCaseButton;
     private JButton insertButton;
     private JButton changeExtensionButton;
-    private JButton renumberButton;
+    private JButton advancedButton;
     private JRadioButton processAllButton;
     private JRadioButton processSelectedButton;
     private JButton processButton;
@@ -539,10 +539,15 @@ public class MainForm extends JFrame {
             }
         });
 
-        renumberButton.addActionListener(new ActionListener() {
+        advancedButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO get Selected file's names and numbering them
+
+                JPopupMenu popup = new JPopupMenu("Edit");
+                JMenuItem replaceWhitespace = new JMenuItem("Replace whitespace");
+
+                popup.add(replaceWhitespace);
+                popup.show(advancedButton, advancedButton.getWidth(), 0);
             }
         });
 
