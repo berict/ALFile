@@ -3,17 +3,16 @@ package berict.alfile.main.form;
 import berict.alfile.file.FileTableItem;
 import berict.alfile.file.TableModel;
 import berict.alfile.file.TableModelListener;
+import berict.alfile.file.TableModelRenderer;
 import lib.FileDrop;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.Objects;
 
 import static berict.alfile.Main.DEBUG;
 import static javax.swing.JOptionPane.*;
@@ -35,14 +34,10 @@ public class MainForm extends JFrame {
 
     private ButtonGroup radioGroup;
 
-    public JPopupMenu popupMenu;
-
     public static TableModel tableModel;
 
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
-
-    public String[] originalNames = new String[99];
 
     public MainForm() {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -51,7 +46,6 @@ public class MainForm extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("AlFile");
 
-        // TODO icon not showing
         ImageIcon img = new ImageIcon("icon.png");
         setIconImage(img.getImage());
 
@@ -76,52 +70,183 @@ public class MainForm extends JFrame {
         radioGroup.add(processSelectedButton);
         processAllButton.setSelected(true);
 
-        // center align
-        DefaultTableCellRenderer align = new DefaultTableCellRenderer();
-        align.setHorizontalAlignment(SwingConstants.LEFT);
+        // add styles
+        TableModelRenderer renderer = new TableModelRenderer();
         TableColumnModel columnModel = table.getColumnModel();
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
-            columnModel.getColumn(i).setCellRenderer(align);
+            columnModel.getColumn(i).setCellRenderer(renderer);
         }
+
+        final int[] start = new int[1];
+        final int[] end = new int[1];
 
         table.addMouseListener(new MouseListener() {
 
             @Override
-            public void mouseClicked(MouseEvent e) { }
+            public void mouseClicked(MouseEvent e) {
+            }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    onMouseRightClick();
-                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    start[0] = table.rowAtPoint(e.getPoint());
                 }
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) { }
+            public void mouseReleased(MouseEvent e) {
+                end[0] = table.rowAtPoint(e.getPoint());
+                if ((start[0] >= 0 && start[0] < table.getRowCount()) &&
+                        (end[0] >= 0 && end[0] < table.getRowCount())) {
+                    if (start[0] <= end[0]) {
+                        table.setRowSelectionInterval(start[0], end[0]);
+                        if (DEBUG) {
+                            System.out.println("start = " + start[0] + " / end = " + end[0]);
+                        }
+                    } else {
+                        table.setRowSelectionInterval(end[0], start[0]);
+                        if (DEBUG) {
+                            System.out.println("start = " + end[0] + " / end = " + start[0]);
+                        }
+                    }
+                } else {
+                    table.clearSelection();
+                }
+
+                int row[] = table.getSelectedRows();
+                if (row.length <= 0) {
+                    return;
+                }
+
+                if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
+                    JPopupMenu popup = new JPopupMenu("Edit");
+                    JMenuItem revert = new JMenuItem("Revert changes");
+                    JMenuItem remove = new JMenuItem("Remove from list");
+                    JMenuItem process = new JMenuItem("Process");
+
+                    if (tableModel.isModified(row)) {
+                        revert.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                for (int index : row) {
+                                    if (tableModel.get(index).isModified()) {
+                                        tableModel.get(index).getFile().revert();
+                                        if (DEBUG) {
+                                            System.out.println("Menu.revert index=" + index);
+                                        }
+                                    }
+                                }
+                                tableModel.update();
+                            }
+                        });
+                        process.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                for (int index : row) {
+                                    if (tableModel.get(index).isModified()) {
+                                        if (!tableModel.get(index).getFile().apply(tableModel)) {
+                                            makeErrorAlert("Failed to process");
+                                        }
+                                        if (DEBUG) {
+                                            System.out.println("Menu.process index=" + index);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        process.setEnabled(false);
+                        revert.setEnabled(false);
+                    }
+
+                    remove.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            for (int i = row.length - 1; i >= 0; i--) {
+                                int index = row[i];
+                                tableModel.remove(index);
+                                if (DEBUG) {
+                                    System.out.println("Menu.remove index=" + index);
+                                }
+                            }
+                        }
+                    });
+
+                    popup.add(revert);
+                    popup.add(remove);
+
+                    if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                        // windows only feature
+                        JMenuItem open = new JMenuItem("Show in explorer");
+                        final boolean[] allExist = {true};
+                        open.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (row.length > 1) {
+                                    for (int index : row) {
+                                        if (!tableModel.get(index).exists()) {
+                                            allExist[0] = false;
+                                            // found not existing file, break
+                                            break;
+                                        }
+                                    }
+                                    if (allExist[0]) {
+                                        makeCustomDialog("Warning", new JLabel("This will open multiple windows. Continue?"), WARNING_MESSAGE, YES_NO_OPTION, YES_OPTION,
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        for (int index : row) {
+                                                            showInExplorer(tableModel.get(index).getFile().getFullPath());
+                                                        }
+                                                    }
+                                                }, null);
+                                    }
+                                } else {
+                                    allExist[0] = tableModel.get(row[0]).exists();
+                                    if (allExist[0]) {
+                                        showInExplorer(tableModel.get(row[0]).getFile().getFullPath());
+                                    }
+                                }
+                            }
+                        });
+                        open.setEnabled(allExist[0]);
+                        popup.add(open);
+                    }
+
+                    popup.add(process);
+                    popup.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
 
             @Override
-            public void mouseEntered(MouseEvent e) { }
+            public void mouseEntered(MouseEvent e) {
+            }
 
             @Override
-            public void mouseExited(MouseEvent e) { }
+            public void mouseExited(MouseEvent e) {
+            }
 
         });
+
         tableModel.addTableModelListener(new TableModelListener());
 
-        String[] fileNameList = new String[table.getRowCount() + 1];
         // drag and drop files
         new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
             public void filesDropped(java.io.File[] files) {
+                int duplicateCount = 0;
                 for (File file : files) {
-                    for (int i = 0; i < fileNameList.length; i++) {
-                        if (Objects.equals(file.getName(), fileNameList[i])) {
-                            System.out.println("File name " + fileNameList[i] + " is already exist");
-                        } else {
-                            originalNames[i] = fileNameList[i];
-                            tableModel.add(new FileTableItem(file));
-                            fileNameList[i] = file.getName();
-                        }
+                    if (tableModel.search(file.getAbsolutePath()) < 0) {
+                        tableModel.add(new FileTableItem(file));
+                    } else {
+                        // duplicate
+                        ++duplicateCount;
+                    }
+                }
+                if (duplicateCount > 0) {
+                    if (duplicateCount == 1) {
+                        makeErrorAlert("A duplicate was found");
+                    } else {
+                        makeErrorAlert(duplicateCount + " duplicates were found");
                     }
                 }
             }
@@ -421,60 +546,15 @@ public class MainForm extends JFrame {
         });
     }
 
-    private void onMouseRightClick(){
-        createPopupMenu();
-        System.out.println("Right button clicked!");
-    }
-
-    private void createPopupMenu() {
-        popupMenu = new JPopupMenu();
-
-        // revert change menu
-        JMenuItem revertM = new JMenuItem("revert");
-        revertM.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (int row : table.getSelectedRows()) {
-                    tableModel.get(row)
-                            .getFile()
-                            .revert();
-                }
-                System.out.println("Reverted changes.");
+    private void showInExplorer(String path) {
+        try {
+            Runtime.getRuntime().exec("explorer.exe /select," + path);
+        } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
             }
-        });
-        popupMenu.add(revertM);
-
-        // apply change menu
-        JMenuItem applyM = new JMenuItem("apply");
-        applyM.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (DEBUG) {
-                    System.out.println("process selected");
-                }
-                for (int row : table.getSelectedRows()) {
-                    tableModel.get(row)
-                            .getFile()
-                            .apply(tableModel);
-                }
-            }
-        });
-        popupMenu.add(applyM);
-
-        // remove item menu
-        JMenuItem removeM = new JMenuItem("remove");
-        removeM.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (int row : table.getSelectedRows()) {
-                    tableModel.get(row)
-                            .getFile()
-                            .removeRows(row, row);
-                    System.out.println("Selected row " + row + " is removed.");
-                }
-            }
-        });
-        popupMenu.add(removeM);
+            makeErrorAlert("Can't show in explorer");
+        }
     }
 
     private void makeDialog(String title, Object message,

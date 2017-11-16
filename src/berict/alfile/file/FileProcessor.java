@@ -9,7 +9,7 @@ import static berict.alfile.Main.DEBUG;
 
 public class FileProcessor {
 
-    public static void move(File file) {
+    public static boolean move(File file) {
         if (DEBUG) {
             System.out.println("Move [" + file.getOriginal().getAbsolutePath() + "] to [" + file.getFullPath() + "]");
         }
@@ -17,12 +17,14 @@ public class FileProcessor {
             // TODO issues #3
             // new File() -- .exists(); with the changed file path
             Files.move(Paths.get(file.getOriginal().getAbsolutePath()), Paths.get(file.getFullPath()), REPLACE_EXISTING);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    public static void rename(File file) {
-        move(file);
+    public static boolean rename(File file) {
+        return move(file);
     }
 }

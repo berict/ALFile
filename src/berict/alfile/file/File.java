@@ -3,8 +3,8 @@ package berict.alfile.file;
 import java.net.URI;
 import java.text.NumberFormat;
 
+import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.FileProcessor.rename;
-import static berict.alfile.main.form.MainForm.tableModel;
 
 public class File extends java.io.File {
 
@@ -39,8 +39,9 @@ public class File extends java.io.File {
         original = this;
         initFromAbsolutePath(absolutePath);
 
-        // TODO debug
-        System.out.println(toString());
+        if (DEBUG) {
+            System.out.println(toString());
+        }
     }
 
     public File(java.io.File file) {
@@ -203,16 +204,12 @@ public class File extends java.io.File {
         }
     }
 
-    public void apply(TableModel tableModel) {
+    public boolean apply(TableModel tableModel) {
         // TODO add move()
-        rename(this);
+        boolean result = rename(this);
         original = new java.io.File(getFullPath());
         tableModel.update();
-    }
-
-    // added
-    public void removeRows(int startRow, int endRow) {
-        tableModel.fireTableRowsDeleted(startRow, endRow);
+        return result;
     }
 
     public java.io.File getOriginal() {
@@ -230,15 +227,5 @@ public class File extends java.io.File {
     @Override
     public String toString() {
         return "path=" + path + ", fileName=" + fileName;
-    }
-
-    class UnusedMethodException extends Exception {
-        public UnusedMethodException() {
-            super();
-        }
-
-        public UnusedMethodException(String usedMethodName, String replaceMethodName) {
-            super(usedMethodName + "() is not used, please use " + replaceMethodName + "()");
-        }
     }
 }

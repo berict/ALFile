@@ -16,6 +16,7 @@ public class TableModel extends AbstractTableModel {
             "Changed File names",
             "Location"
     };
+
     @Override
     public int getColumnCount() {
         return columnNames.length;
@@ -52,12 +53,36 @@ public class TableModel extends AbstractTableModel {
         updateFromDataList();
     }
 
+    public void remove(int row) {
+        dataList.remove(row);
+        updateFromDataList();
+    }
+
     public void update() {
         updateFromDataList();
     }
 
     public FileTableItem get(int row) {
         return dataList.get(row);
+    }
+
+    public boolean isModified(int row[]) {
+        for (int i : row) {
+            if (dataList.get(i).isModified()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int search(String path) {
+        for (int i = 0; i < dataList.size(); i++) {
+            FileTableItem item = dataList.get(i);
+            if (item.getFile().getFullPath().equals(path)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void updateFromDataList() {

@@ -1,7 +1,5 @@
 package berict.alfile.file;
 
-import java.util.ArrayList;
-
 public class FileTableItem {
 
     private File file;
@@ -28,5 +26,13 @@ public class FileTableItem {
         items[2] = file.getOriginal().getAbsolutePath();
 
         return items;
+    }
+
+    public boolean isModified() {
+        return !file.getFileName().equals(file.getOriginal().getName());
+    }
+
+    public boolean exists() {
+        return file.getOriginal().exists();
     }
 }
