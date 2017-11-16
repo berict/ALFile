@@ -4,10 +4,15 @@ import berict.alfile.file.FileTableItem;
 import berict.alfile.file.TableModel;
 import berict.alfile.file.TableModelListener;
 import berict.alfile.file.TableModelRenderer;
+import javafx.scene.effect.ColorInput;
 import lib.FileDrop;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.TableColumnModel;
+import java.awt.*;
 import java.awt.event.*;
 
 import static berict.alfile.Main.DEBUG;
@@ -30,10 +35,14 @@ public class MainForm extends JFrame {
     private JTable table;
     private JButton subfolderButton;
     private JButton exportContentButton;
+    private JPanel statusPanel;
+    private JLabel status;
 
     private ButtonGroup radioGroup;
 
     public static TableModel tableModel;
+    public int fileCount = 0;
+    public int selectedCount = 0;
 
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
@@ -97,6 +106,12 @@ public class MainForm extends JFrame {
         radioGroup.add(processAllButton);
         radioGroup.add(processSelectedButton);
         processAllButton.setSelected(true);
+
+        statusPanel = new JPanel();
+        status = new JLabel("No items to select", JLabel.LEFT);
+        statusPanel.setLayout(new BorderLayout());
+        statusPanel.add(status, BorderLayout.WEST);
+        add("South", statusPanel);
 
         // add styles
         TableModelRenderer renderer = new TableModelRenderer();
@@ -192,7 +207,9 @@ public class MainForm extends JFrame {
                         public void actionPerformed(ActionEvent e) {
                             for (int i = row.length - 1; i >= 0; i--) {
                                 int index = row[i];
-                                tableModel.remove(index);
+                                fileCount = table.getRowCount();
+                                selectedCount = table.getSelectedRowCount();
+                                status.setText(fileCount + " items,  " + selectedCount + " items selected.");
                                 if (DEBUG) {
                                     System.out.println("Menu.remove index=" + index);
                                 }
@@ -269,6 +286,7 @@ public class MainForm extends JFrame {
                         // duplicate
                         ++duplicateCount;
                     }
+                    statusRefresh();
                 }
                 if (duplicateCount > 0) {
                     if (duplicateCount == 1) {
@@ -761,6 +779,12 @@ public class MainForm extends JFrame {
                 }
             }
         });
+    }
+
+    private void statusRefresh() {
+        fileCount = table.getRowCount();
+        selectedCount = table.getSelectedRowCount();
+        status.setText(fileCount + " items exist,  " + selectedCount + " items selected.");
     }
 
     private boolean process(int row) {
