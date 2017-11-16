@@ -1,7 +1,5 @@
 package berict.alfile.file;
 
-import com.sun.istack.internal.Nullable;
-
 import java.net.URI;
 import java.text.NumberFormat;
 
@@ -233,7 +231,6 @@ public class File extends java.io.File {
         }
     }
 
-    @Nullable
     public String getExtension() {
         String names[] = original.getName().split("\\.");
         if (original.getName().contains(".")) {

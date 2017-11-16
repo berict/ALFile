@@ -776,16 +776,7 @@ public class MainForm extends JFrame {
                                         int moveCount = 0;
                                         int errorCount = 0;
                                         for (int row : table.getSelectedRows()) {
-                                            if (tableModel.get(row).getFile().isDirectory()) {
-                                                folderCount++;
-                                                // TODO make this as a customizable
-                                                int result = tableModel.get(row).getFile().moveSubfolder("#");
-                                                if (result > 0) {
-                                                    moveCount += result;
-                                                } else {
-                                                    errorCount++;
-                                                }
-                                            }
+                                            countSubfolderLog(row, folderCount, moveCount, errorCount);
                                         }
                                         tableModel.update();
                                         makeAlert("Subfolder", "Processed "
@@ -803,16 +794,7 @@ public class MainForm extends JFrame {
                                                         int moveCount = 0;
                                                         int errorCount = 0;
                                                         for (int row = 0; row < table.getRowCount(); row++) {
-                                                            if (tableModel.get(row).getFile().isDirectory()) {
-                                                                folderCount++;
-                                                                // TODO make this as a customizable
-                                                                int result = tableModel.get(row).getFile().moveSubfolder("#");
-                                                                if (result > 0) {
-                                                                    moveCount += result;
-                                                                } else {
-                                                                    errorCount++;
-                                                                }
-                                                            }
+                                                            countSubfolderLog(row, folderCount, moveCount, errorCount);
                                                         }
                                                         tableModel.update();
                                                         makeAlert("Subfolder", "Processed "
@@ -939,6 +921,19 @@ public class MainForm extends JFrame {
                 }
             }
         });
+    }
+
+    private void countSubfolderLog(int row, int folderCount, int moveCount, int errorCount) {
+        if (tableModel.get(row).getFile().isDirectory()) {
+            folderCount++;
+            // TODO make this as a customizable
+            int result = tableModel.get(row).getFile().moveSubfolder("#");
+            if (result > 0) {
+                moveCount += result;
+            } else {
+                errorCount++;
+            }
+        }
     }
 
     private void setStatus(String text) {
