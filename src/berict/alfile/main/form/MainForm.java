@@ -9,6 +9,7 @@ import lib.FileDrop;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.event.*;
+import java.io.File;
 
 import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.File.*;
@@ -739,22 +740,36 @@ public class MainForm extends JFrame {
                         System.out.println("process all");
                     }
                     for (int row = 0; row < table.getRowCount(); row++) {
-                        tableModel.get(row)
-                                .getFile()
-                                .apply(tableModel);
+                        process(row);
                     }
                 } else if (processSelectedButton.isSelected()) {
                     if (DEBUG) {
                         System.out.println("process selected");
                     }
                     for (int row : table.getSelectedRows()) {
-                        tableModel.get(row)
-                                .getFile()
-                                .apply(tableModel);
+                        process(row);
                     }
                 }
             }
         });
+    }
+
+    private void process(int row) {
+        String path = tableModel.get(row).getFile().getParent();
+        System.out.println("File path : " + path);
+        File dirFile = new File(path);
+        File[] pathFiles = dirFile.listFiles();
+        for (File file : pathFiles) {
+            if (file.getName().equals(tableModel.getValueAt(row, 1))) {
+                makeErrorAlert("File name '" + file.getName() + "' already exist.");
+                System.out.println("File name " + file.getName() + " already exist.");
+                break;
+            } else {
+                tableModel.get(row)
+                        .getFile()
+                        .apply(tableModel);
+            }
+        }
     }
 
     private void showInExplorer(String path) {
