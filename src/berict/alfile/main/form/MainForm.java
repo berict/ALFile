@@ -8,10 +8,7 @@ import lib.FileDrop;
 
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 
 import static berict.alfile.Main.DEBUG;
@@ -44,6 +41,35 @@ public class MainForm extends JFrame {
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int modified = tableModel.getModifiedCount();
+                if (modified > 0) {
+                    String text;
+                    if (modified == 1) {
+                        text = "1 file is not processed. Proceed exit?";
+                    } else {
+                        text = modified + " files not processed. Proceed exit?";
+                    }
+                    makeCustomDialog("Warning", text, WARNING_MESSAGE,
+                            YES_NO_OPTION, YES_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                                }
+                            }, new Runnable() {
+                                @Override
+                                public void run() {
+                                    setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+                                }
+                            });
+                } else {
+                    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                }
+            }
+        });
         setTitle("AlFile");
 
         ImageIcon img = new ImageIcon("icon.png");

@@ -91,13 +91,14 @@ public class TableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    private int checkModified() {
-        int unModifiedCount = 0;
-        for (int i = 0; i < dataList.size(); i++) {
-
+    public int getModifiedCount() {
+        int modifiedCount = 0;
+        for (FileTableItem item : dataList) {
+            if (item.isModified()) {
+                modifiedCount++;
+            }
         }
-
-        return unModifiedCount;
+        return modifiedCount;
     }
 
     private Object[][] getData() {
