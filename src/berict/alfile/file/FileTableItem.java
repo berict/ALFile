@@ -29,7 +29,7 @@ public class FileTableItem {
     }
 
     public boolean isModified() {
-        return !file.getFileName().equals(file.getOriginal().getName());
+        return file.isModified();
     }
 
     public boolean exists() {

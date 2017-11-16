@@ -5,7 +5,8 @@
       <xy x="265" y="46" width="452" height="432"/>
     </constraints>
     <properties>
-      <preferredSize width="540" height="320"/>
+      <enabled value="false"/>
+      <preferredSize width="960" height="540"/>
     </properties>
     <border type="none"/>
     <children>

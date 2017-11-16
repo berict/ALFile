@@ -4,6 +4,7 @@ import java.net.URI;
 import java.text.NumberFormat;
 
 import static berict.alfile.Main.DEBUG;
+import static berict.alfile.file.FileProcessor.move;
 import static berict.alfile.file.FileProcessor.rename;
 
 public class File extends java.io.File {
@@ -204,12 +205,32 @@ public class File extends java.io.File {
         }
     }
 
+    public boolean isModified() {
+        return !getFileName().equals(getOriginal().getName());
+    }
+
     public boolean apply(TableModel tableModel) {
-        // TODO add move()
-        boolean result = rename(this);
-        original = new java.io.File(getFullPath());
-        tableModel.update();
-        return result;
+        if (isModified()) {
+            boolean result;
+            if (getFileName().toLowerCase().equals(getOriginal().getName()) ||
+                    getFileName().toUpperCase().equals(getOriginal().getName()) ||
+                    getOriginal().getName().toLowerCase().equals(getFileName()) ||
+                    getOriginal().getName().toUpperCase().equals(getFileName())) {
+                // changes the filename twice to change
+                result = move(getOriginal().getAbsolutePath(), getFullPath() + ".alfile");
+                result = result | move(getFullPath() + ".alfile", getFullPath());
+                if (DEBUG) {
+                    System.out.println("Double switch");
+                }
+            } else {
+                result = rename(this);
+            }
+            original = new java.io.File(getFullPath());
+            tableModel.update();
+            return result;
+        } else {
+            return true;
+        }
     }
 
     public java.io.File getOriginal() {

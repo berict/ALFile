@@ -10,16 +10,27 @@ import static berict.alfile.Main.DEBUG;
 public class FileProcessor {
 
     public static boolean move(File file) {
-        if (DEBUG) {
-            System.out.println("Move [" + file.getOriginal().getAbsolutePath() + "] to [" + file.getFullPath() + "]");
-        }
-        try {
-            // TODO issues #3
-            // new File() -- .exists(); with the changed file path
-            Files.move(Paths.get(file.getOriginal().getAbsolutePath()), Paths.get(file.getFullPath()), REPLACE_EXISTING);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
+        return move(file.getOriginal().getAbsolutePath(), file.getFullPath());
+    }
+
+    public static boolean move(String source, String target) {
+        if (new File(source).getOriginal().exists()) {
+            if (DEBUG) {
+                System.out.println("Move [" + source + "] to [" + target + "]");
+            }
+            try {
+                Files.move(Paths.get(source), Paths.get(target), REPLACE_EXISTING);
+                return true;
+            } catch (IOException e) {
+                if (DEBUG) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        } else {
+            if (DEBUG) {
+                System.out.println("File doesn't exist");
+            }
             return false;
         }
     }
