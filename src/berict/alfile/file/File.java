@@ -211,6 +211,28 @@ public class File extends java.io.File {
         }
     }
 
+    public String getDirectoryContent() {
+        if (isDirectory()) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (java.io.File content : listFiles()) {
+                File file = new File(content);
+                stringBuilder.append("\"");
+                stringBuilder.append(file.getType());
+                stringBuilder.append("\",");
+                stringBuilder.append("\"");
+                stringBuilder.append(file.getFileName());
+                stringBuilder.append("\",");
+                stringBuilder.append("\"");
+                stringBuilder.append(file.getFullPath());
+                stringBuilder.append("\"");
+                stringBuilder.append("\n");
+            }
+            return stringBuilder.toString();
+        } else {
+            return null;
+        }
+    }
+
     @Nullable
     public String getExtension() {
         String names[] = original.getName().split("\\.");
@@ -222,6 +244,16 @@ public class File extends java.io.File {
             }
         } else {
             return null;
+        }
+    }
+
+    public String getType() {
+        if (isFile() && getExtension() != null) {
+            return "file/" + getExtension();
+        } else if (isDirectory()) {
+            return "folder";
+        } else {
+            return "file";
         }
     }
 

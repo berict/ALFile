@@ -1,19 +1,19 @@
 package berict.alfile.main.form;
 
-import berict.alfile.file.FileTableItem;
-import berict.alfile.file.TableModel;
-import berict.alfile.file.TableModelListener;
-import berict.alfile.file.TableModelRenderer;
+import berict.alfile.file.*;
 import lib.FileDrop;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 
 import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.File.*;
+import static berict.alfile.file.FileProcessor.writeToFile;
 import static javax.swing.JOptionPane.*;
 
 public class MainForm extends JFrame {
@@ -834,7 +834,64 @@ public class MainForm extends JFrame {
         exportContentButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // # 12
+                if (table.getRowCount() > 0) {
+                    // table has content
+
+                    ButtonGroup buttonGroup = new ButtonGroup();
+                    JRadioButton txt = new JRadioButton("Export to .txt");
+                    JRadioButton csv = new JRadioButton("Export to .csv");
+                    JRadioButton clipboard = new JRadioButton("Copy to clipboard");
+
+                    buttonGroup.add(txt);
+                    buttonGroup.add(csv);
+                    buttonGroup.add(clipboard);
+
+                    clipboard.setSelected(true);
+
+                    final JComponent[] inputs = new JComponent[]{
+                            new JLabel("Export format"),
+                            txt,
+                            csv,
+                            clipboard,
+                    };
+
+                    makeDialog("Export content", inputs, OK_CANCEL_OPTION, OK_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (table.getSelectedRows().length > 0) {
+                                        // has selected rows
+                                        for (int row : table.getSelectedRows()) {
+                                            File file = tableModel.get(row).getFile();
+                                            String content = file.getDirectoryContent();
+                                            if (clipboard.isSelected()) {
+                                                // clipboard
+                                                StringSelection stringSelection = new StringSelection(content);
+                                                Clipboard clipboard1 = Toolkit.getDefaultToolkit().getSystemClipboard();
+                                                clipboard1.setContents(stringSelection, null);
+                                            } else if (txt.isSelected()) {
+                                                // txt
+                                                if (!writeToFile(file.getFullPath() + SEPARATOR + "content.alfile.txt", content)) {
+                                                    makeErrorAlert("Error writing to file");
+                                                }
+                                            } else {
+                                                // csv
+                                                if (!writeToFile(file.getFullPath() + SEPARATOR + "content.alfile.csv", content)) {
+                                                    makeErrorAlert("Error writing to file");
+                                                }
+                                            }
+                                        }
+                                        tableModel.update();
+                                    } else {
+                                        // doesn't have selected rows
+                                        makeErrorAlert("No folder selected");
+                                    }
+                                }
+                            }, null);
+
+                } else {
+                    makeErrorAlert("No file found");
+                }
             }
         });
 
