@@ -81,7 +81,7 @@
                   <focusPainted value="false"/>
                   <horizontalAlignment value="2"/>
                   <horizontalTextPosition value="0"/>
-                  <text value="Insert front / end"/>
+                  <text value="Insert"/>
                 </properties>
               </component>
               <component id="9a73f" class="javax.swing.JButton" binding="changeCaseButton">
@@ -92,7 +92,7 @@
                   <focusPainted value="false"/>
                   <horizontalAlignment value="2"/>
                   <horizontalTextPosition value="0"/>
-                  <text value="UPPER / lower case"/>
+                  <text value="Change case"/>
                 </properties>
               </component>
               <component id="8ce62" class="javax.swing.JLabel">
@@ -164,7 +164,7 @@
                 <properties>
                   <focusPainted value="false"/>
                   <horizontalAlignment value="2"/>
-                  <text value="Manage subfolder"/>
+                  <text value="Move subfolder"/>
                 </properties>
               </component>
             </children>
