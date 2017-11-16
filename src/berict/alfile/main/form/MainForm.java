@@ -11,7 +11,7 @@ import javax.swing.table.TableColumnModel;
 import java.awt.event.*;
 
 import static berict.alfile.Main.DEBUG;
-import static berict.alfile.file.File.SEPARATOR;
+import static berict.alfile.file.File.*;
 import static javax.swing.JOptionPane.*;
 
 public class MainForm extends JFrame {
@@ -308,48 +308,52 @@ public class MainForm extends JFrame {
                                 public void run() {
                                     if (oldString.getText() != null && newString.getText() != null) {
                                         // all filled
-                                        if (table.getSelectedRows().length > 0) {
-                                            // has selected rows
-                                            if (all.isSelected()) {
-                                                // replace all
-                                                for (int row : table.getSelectedRows()) {
-                                                    tableModel.get(row)
-                                                            .getFile()
-                                                            .replaceAll(oldString.getText(), newString.getText());
+                                        if (isAvailableForFileName(newString.getText())) {
+                                            if (table.getSelectedRows().length > 0) {
+                                                // has selected rows
+                                                if (all.isSelected()) {
+                                                    // replace all
+                                                    for (int row : table.getSelectedRows()) {
+                                                        tableModel.get(row)
+                                                                .getFile()
+                                                                .replaceAll(oldString.getText(), newString.getText());
+                                                    }
+                                                } else {
+                                                    // replace first match
+                                                    for (int row : table.getSelectedRows()) {
+                                                        tableModel.get(row)
+                                                                .getFile()
+                                                                .replaceFirst(oldString.getText(), newString.getText());
+                                                    }
                                                 }
+                                                tableModel.update();
                                             } else {
-                                                // replace first match
-                                                for (int row : table.getSelectedRows()) {
-                                                    tableModel.get(row)
-                                                            .getFile()
-                                                            .replaceFirst(oldString.getText(), newString.getText());
-                                                }
-                                            }
-                                            tableModel.update();
-                                        } else {
-                                            // doesn't have selected rows
-                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            if (all.isSelected()) {
-                                                                // replace all
-                                                                for (int row = 0; row < table.getRowCount(); row++) {
-                                                                    tableModel.get(row)
-                                                                            .getFile()
-                                                                            .replaceAll(oldString.getText(), newString.getText());
+                                                // doesn't have selected rows
+                                                makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                        new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                if (all.isSelected()) {
+                                                                    // replace all
+                                                                    for (int row = 0; row < table.getRowCount(); row++) {
+                                                                        tableModel.get(row)
+                                                                                .getFile()
+                                                                                .replaceAll(oldString.getText(), newString.getText());
+                                                                    }
+                                                                } else {
+                                                                    // replace first match
+                                                                    for (int row = 0; row < table.getRowCount(); row++) {
+                                                                        tableModel.get(row)
+                                                                                .getFile()
+                                                                                .replaceFirst(oldString.getText(), newString.getText());
+                                                                    }
                                                                 }
-                                                            } else {
-                                                                // replace first match
-                                                                for (int row = 0; row < table.getRowCount(); row++) {
-                                                                    tableModel.get(row)
-                                                                            .getFile()
-                                                                            .replaceFirst(oldString.getText(), newString.getText());
-                                                                }
+                                                                tableModel.update();
                                                             }
-                                                            tableModel.update();
-                                                        }
-                                                    }, null);
+                                                        }, null);
+                                            }
+                                        } else {
+                                            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
                                         }
                                     } else {
                                         makeErrorAlert("Fill out to continue");
@@ -378,29 +382,33 @@ public class MainForm extends JFrame {
                                 @Override
                                 public void run() {
                                     if (newExtension.getText() != null) {
-                                        // all filled
-                                        if (table.getSelectedRows().length > 0) {
-                                            // has selected rows
-                                            for (int row : table.getSelectedRows()) {
-                                                tableModel.get(row)
-                                                        .getFile()
-                                                        .replaceExtension(newExtension.getText());
-                                            }
-                                            tableModel.update();
-                                        } else {
-                                            // doesn't have selected rows
-                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            for (int row = 0; row < table.getRowCount(); row++) {
-                                                                tableModel.get(row)
-                                                                        .getFile()
-                                                                        .replaceExtension(newExtension.getText());
+                                        if (isAvailableForFileName(newExtension.getText())) {
+                                            // all filled
+                                            if (table.getSelectedRows().length > 0) {
+                                                // has selected rows
+                                                for (int row : table.getSelectedRows()) {
+                                                    tableModel.get(row)
+                                                            .getFile()
+                                                            .replaceExtension(newExtension.getText());
+                                                }
+                                                tableModel.update();
+                                            } else {
+                                                // doesn't have selected rows
+                                                makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                        new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                for (int row = 0; row < table.getRowCount(); row++) {
+                                                                    tableModel.get(row)
+                                                                            .getFile()
+                                                                            .replaceExtension(newExtension.getText());
+                                                                }
+                                                                tableModel.update();
                                                             }
-                                                            tableModel.update();
-                                                        }
-                                                    }, null);
+                                                        }, null);
+                                            }
+                                        } else {
+                                            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
                                         }
                                     } else {
                                         makeErrorAlert("Fill out to continue");
@@ -502,30 +510,34 @@ public class MainForm extends JFrame {
                                 public void run() {
                                     System.out.println(insertString.getText());
                                     if (insertString.getText() != null) {
-                                        boolean isFront = front.isSelected();
-                                        boolean isContainExtension = containExtension.isSelected();
-                                        if (table.getSelectedRows().length > 0) {
-                                            // has selected rows
-                                            for (int row : table.getSelectedRows()) {
-                                                tableModel.get(row)
-                                                        .getFile()
-                                                        .insert(insertString.getText(), isFront, isContainExtension);
-                                            }
-                                            tableModel.update();
-                                        } else {
-                                            // doesn't have selected rows
-                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            for (int row = 0; row < table.getRowCount(); row++) {
-                                                                tableModel.get(row)
-                                                                        .getFile()
-                                                                        .insert(insertString.getText(), isFront, isContainExtension);
+                                        if (isAvailableForFileName(insertString.getText())) {
+                                            boolean isFront = front.isSelected();
+                                            boolean isContainExtension = containExtension.isSelected();
+                                            if (table.getSelectedRows().length > 0) {
+                                                // has selected rows
+                                                for (int row : table.getSelectedRows()) {
+                                                    tableModel.get(row)
+                                                            .getFile()
+                                                            .insert(insertString.getText(), isFront, isContainExtension);
+                                                }
+                                                tableModel.update();
+                                            } else {
+                                                // doesn't have selected rows
+                                                makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                        new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                for (int row = 0; row < table.getRowCount(); row++) {
+                                                                    tableModel.get(row)
+                                                                            .getFile()
+                                                                            .insert(insertString.getText(), isFront, isContainExtension);
+                                                                }
+                                                                tableModel.update();
                                                             }
-                                                            tableModel.update();
-                                                        }
-                                                    }, null);
+                                                        }, null);
+                                            }
+                                        } else {
+                                            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
                                         }
                                     } else {
                                         makeErrorAlert("Fill out to continue");
@@ -560,33 +572,37 @@ public class MainForm extends JFrame {
                             public void run() {
                                 String input = textField.getText();
                                 if (input != null) {
-                                    if (input.equals(" ")) {
-                                        // no changes
-                                        makeErrorAlert("No changes found");
-                                    } else {
-                                        if (table.getSelectedRows().length > 0) {
-                                            // has selected rows
-                                            for (int row : table.getSelectedRows()) {
-                                                tableModel.get(row)
-                                                        .getFile()
-                                                        .replaceAll(" ", input);
-                                            }
-                                            tableModel.update();
+                                    if (isAvailableForFileName(input)) {
+                                        if (input.equals(" ")) {
+                                            // no changes
+                                            makeErrorAlert("No changes found");
                                         } else {
-                                            // doesn't have selected rows
-                                            makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            for (int row = 0; row < table.getRowCount(); row++) {
-                                                                tableModel.get(row)
-                                                                        .getFile()
-                                                                        .replaceAll(" ", input);
+                                            if (table.getSelectedRows().length > 0) {
+                                                // has selected rows
+                                                for (int row : table.getSelectedRows()) {
+                                                    tableModel.get(row)
+                                                            .getFile()
+                                                            .replaceAll(" ", input);
+                                                }
+                                                tableModel.update();
+                                            } else {
+                                                // doesn't have selected rows
+                                                makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                        new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                for (int row = 0; row < table.getRowCount(); row++) {
+                                                                    tableModel.get(row)
+                                                                            .getFile()
+                                                                            .replaceAll(" ", input);
+                                                                }
+                                                                tableModel.update();
                                                             }
-                                                            tableModel.update();
-                                                        }
-                                                    }, null);
+                                                        }, null);
+                                            }
                                         }
+                                    } else {
+                                        makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
                                     }
                                 } else {
                                     makeErrorAlert("Fill out to continue");
@@ -623,46 +639,50 @@ public class MainForm extends JFrame {
                             public void run() {
                                 String directorySeparator = textField.getText();
                                 boolean isInsertToStart = insertToStart.isSelected();
-                                if (table.getSelectedRows().length > 0) {
-                                    // has selected rows
-                                    for (int row : table.getSelectedRows()) {
-                                        FileTableItem item = tableModel.get(row);
-                                        if (isInsertToStart) {
-                                            item.getFile().insertAtStart(item.getFile().getParentFile().getName() + directorySeparator);
-                                        } else {
-                                            // replace all text to the path
-                                            item.getFile().setName(
-                                                    item.getFile().getFullPath().replace(
-                                                            SEPARATOR, directorySeparator
-                                                    ), true
-                                            );
+                                if (isAvailableForFileName(directorySeparator)) {
+                                    if (table.getSelectedRows().length > 0) {
+                                        // has selected rows
+                                        for (int row : table.getSelectedRows()) {
+                                            FileTableItem item = tableModel.get(row);
+                                            if (isInsertToStart) {
+                                                item.getFile().insertAtStart(item.getFile().getParentFile().getName() + directorySeparator);
+                                            } else {
+                                                // replace all text to the path
+                                                item.getFile().setName(
+                                                        item.getFile().getFullPath().replace(
+                                                                SEPARATOR, directorySeparator
+                                                        ), true
+                                                );
+                                            }
+                                            tableModel.set(row, item);
                                         }
-                                        tableModel.set(row, item);
-                                    }
-                                    tableModel.update();
-                                } else {
-                                    // doesn't have selected rows
-                                    makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    for (int row = 0; row < table.getRowCount(); row++) {
-                                                        FileTableItem item = tableModel.get(row);
-                                                        if (isInsertToStart) {
-                                                            item.getFile().insertAtStart(item.getFile().getParentFile().getName() + directorySeparator);
-                                                        } else {
-                                                            // replace all text to the path
-                                                            item.getFile().setName(
-                                                                    item.getFile().getFullPath().replace(
-                                                                            SEPARATOR, directorySeparator
-                                                                    ), true
-                                                            );
+                                        tableModel.update();
+                                    } else {
+                                        // doesn't have selected rows
+                                        makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        for (int row = 0; row < table.getRowCount(); row++) {
+                                                            FileTableItem item = tableModel.get(row);
+                                                            if (isInsertToStart) {
+                                                                item.getFile().insertAtStart(item.getFile().getParentFile().getName() + directorySeparator);
+                                                            } else {
+                                                                // replace all text to the path
+                                                                item.getFile().setName(
+                                                                        item.getFile().getFullPath().replace(
+                                                                                SEPARATOR, directorySeparator
+                                                                        ), true
+                                                                );
+                                                            }
+                                                            tableModel.set(row, item);
                                                         }
-                                                        tableModel.set(row, item);
+                                                        tableModel.update();
                                                     }
-                                                    tableModel.update();
-                                                }
-                                            }, null);
+                                                }, null);
+                                    }
+                                } else {
+                                    makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
                                 }
                             }
                         }, null);
@@ -748,38 +768,38 @@ public class MainForm extends JFrame {
         }
     }
 
-    private void makeDialog(String title, Object message,
-                            int optionType, int confirmAction,
-                            Runnable onConfirm, Runnable onCancel) {
+    public static void makeDialog(String title, Object message,
+                                  int optionType, int confirmAction,
+                                  Runnable onConfirm, Runnable onCancel) {
         showDialog(title, message, PLAIN_MESSAGE, optionType, confirmAction, onConfirm, onCancel);
     }
 
-    private void makeWarningDialog(Object message,
-                                   int optionType, int confirmAction,
-                                   Runnable onConfirm, Runnable onCancel) {
+    public static void makeWarningDialog(Object message,
+                                         int optionType, int confirmAction,
+                                         Runnable onConfirm, Runnable onCancel) {
         showDialog("Warning", message, WARNING_MESSAGE, optionType, confirmAction, onConfirm, onCancel);
     }
 
-    private void makeCustomDialog(String title, Object message, int messageType,
-                                  int optionType, int confirmAction,
-                                  Runnable onConfirm, Runnable onCancel) {
+    public static void makeCustomDialog(String title, Object message, int messageType,
+                                        int optionType, int confirmAction,
+                                        Runnable onConfirm, Runnable onCancel) {
         showDialog(title, message, messageType, optionType, confirmAction, onConfirm, onCancel);
     }
 
-    private void makeErrorAlert(String text) {
+    public static void makeErrorAlert(String text) {
         JOptionPane.showMessageDialog(null, text, "Error", ERROR_MESSAGE);
     }
 
-    private void makeAlert(String title, String text, int messageType,
-                           int optionType, int confirmAction,
-                           Runnable onConfirm, Runnable onCancel) {
+    public static void makeAlert(String title, String text, int messageType,
+                                 int optionType, int confirmAction,
+                                 Runnable onConfirm, Runnable onCancel) {
         final JComponent[] label = new JComponent[]{new JLabel(text)};
         showDialog(title, label, messageType, optionType, confirmAction, onConfirm, onCancel);
     }
 
-    private void showDialog(String title, Object message, int messageType,
-                            int optionType, int confirmAction,
-                            Runnable onConfirm, Runnable onCancel) {
+    public static void showDialog(String title, Object message, int messageType,
+                                  int optionType, int confirmAction,
+                                  Runnable onConfirm, Runnable onCancel) {
         if (JOptionPane.showConfirmDialog(null, message, title, optionType, messageType)
                 == confirmAction) {
             if (onConfirm != null) {

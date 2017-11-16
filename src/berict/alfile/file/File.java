@@ -6,6 +6,7 @@ import java.text.NumberFormat;
 import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.FileProcessor.move;
 import static berict.alfile.file.FileProcessor.rename;
+import static berict.alfile.main.form.MainForm.makeErrorAlert;
 
 public class File extends java.io.File {
 
@@ -23,6 +24,8 @@ public class File extends java.io.File {
      */
 
     public final static String SEPARATOR = separator;
+    public final static String RESTRICTED_CHARACTERS[] = {"\\", "/", ":", "*", "?", "\"", "<", ">", "|"};
+    public final static String RESTRICTED_CHARACTER = "\\ / : * ? \" < > |";
 
     // path : "some/dir/"
     private String path;
@@ -113,20 +116,32 @@ public class File extends java.io.File {
     }
 
     public void replaceAll(String regex, String replacement) {
-        this.fileName = fileName.replaceAll(regex, replacement);
+        if (isAvailableForFileName(replacement)) {
+            this.fileName = fileName.replaceAll(regex, replacement);
+        } else {
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
+        }
     }
 
     public void replaceFirst(String regex, String replacement) {
-        this.fileName = fileName.replaceFirst(regex, replacement);
+        if (isAvailableForFileName(replacement)) {
+            this.fileName = fileName.replaceFirst(regex, replacement);
+        } else {
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
+        }
     }
 
     public void replaceExtension(String replacement) {
-        String names[] = fileName.split("\\.");
-        if (names.length > 0) {
-            // only uppercase the actual file 'name', not the extension
-            this.fileName = names[0] + "." + replacement;
+        if (isAvailableForFileName(replacement)) {
+            String names[] = fileName.split("\\.");
+            if (names.length > 0) {
+                // only uppercase the actual file 'name', not the extension
+                this.fileName = names[0] + "." + replacement;
+            } else {
+                System.out.println("No filename found");
+            }
         } else {
-            System.out.println("No filename found");
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
         }
     }
 
@@ -140,30 +155,38 @@ public class File extends java.io.File {
     }
 
     public void insertAtStart(String value) {
-        this.fileName = value + fileName;
+        if (isAvailableForFileName(value)) {
+            this.fileName = value + fileName;
+        } else {
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
+        }
     }
 
     public void insertAtEnd(String value, boolean containExtension) {
-        if (containExtension) {
-            this.fileName = fileName + value;
-        } else {
-            String names[] = fileName.split("\\.");
-            if (names.length > 0) {
-                // only uppercase the actual file 'name', not the extension
-                names[0] = names[0] + value;
-
-                StringBuilder stringBuilder = new StringBuilder();
-                for (String name : names) {
-                    if (stringBuilder.length() != 0) {
-                        stringBuilder.append(".");
-                    }
-                    stringBuilder.append(name);
-                }
-
-                this.fileName = stringBuilder.toString();
+        if (isAvailableForFileName(value)) {
+            if (containExtension) {
+                this.fileName = fileName + value;
             } else {
-                System.out.println("No filename found");
+                String names[] = fileName.split("\\.");
+                if (names.length > 0) {
+                    // only uppercase the actual file 'name', not the extension
+                    names[0] = names[0] + value;
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (String name : names) {
+                        if (stringBuilder.length() != 0) {
+                            stringBuilder.append(".");
+                        }
+                        stringBuilder.append(name);
+                    }
+
+                    this.fileName = stringBuilder.toString();
+                } else {
+                    System.out.println("No filename found");
+                }
             }
+        } else {
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
         }
     }
 
@@ -182,26 +205,46 @@ public class File extends java.io.File {
     }
 
     public void setName(String name, boolean containExtension) {
-        if (containExtension) {
-            this.fileName = name;
-        } else {
-            String names[] = fileName.split("\\.");
-            if (names.length > 0) {
-                // only uppercase the actual file 'name', not the extension
-                names[0] = name;
-
-                StringBuilder stringBuilder = new StringBuilder();
-                for (String value : names) {
-                    if (stringBuilder.length() != 0) {
-                        stringBuilder.append(".");
-                    }
-                    stringBuilder.append(value);
-                }
-
-                this.fileName = stringBuilder.toString();
+        if (isAvailableForFileName(name)) {
+            if (containExtension) {
+                this.fileName = name;
             } else {
-                System.out.println("No filename found");
+                String names[] = fileName.split("\\.");
+                if (names.length > 0) {
+                    // only uppercase the actual file 'name', not the extension
+                    names[0] = name;
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (String value : names) {
+                        if (stringBuilder.length() != 0) {
+                            stringBuilder.append(".");
+                        }
+                        stringBuilder.append(value);
+                    }
+
+                    this.fileName = stringBuilder.toString();
+                } else {
+                    System.out.println("No filename found");
+                }
             }
+        } else {
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
+        }
+    }
+
+    public static boolean isAvailableForFileName(String value) {
+        if (value != null) {
+            boolean available = true;
+            for (String s : RESTRICTED_CHARACTERS) {
+                if (value.contains(s)) {
+                    // not available
+                    available = false;
+                    break;
+                }
+            }
+            return available;
+        } else {
+            return false;
         }
     }
 
