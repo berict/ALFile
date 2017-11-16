@@ -772,20 +772,54 @@ public class MainForm extends JFrame {
                                 public void run() {
                                     if (table.getSelectedRows().length > 0) {
                                         // has selected rows
+                                        int folderCount = 0;
+                                        int moveCount = 0;
+                                        int errorCount = 0;
                                         for (int row : table.getSelectedRows()) {
-                                            tableModel.get(row).getFile().replaceAll("\\P{Print}", "");
+                                            if (tableModel.get(row).getFile().isDirectory()) {
+                                                folderCount++;
+                                                // TODO make this as a customizable
+                                                int result = tableModel.get(row).getFile().moveSubfolder("#");
+                                                if (result > 0) {
+                                                    moveCount += result;
+                                                } else {
+                                                    errorCount++;
+                                                }
+                                            }
                                         }
                                         tableModel.update();
+                                        makeAlert("Subfolder", "Processed "
+                                                        + folderCount + " folder(s) with "
+                                                        + moveCount + " move(s) and "
+                                                        + errorCount + " error(s)", INFORMATION_MESSAGE, CLOSED_OPTION, CLOSED_OPTION,
+                                                null, null);
                                     } else {
                                         // doesn't have selected rows
-                                        makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                        makeWarningDialog("No folder selected. Apply to all folders?", YES_NO_OPTION, YES_OPTION,
                                                 new Runnable() {
                                                     @Override
                                                     public void run() {
+                                                        int folderCount = 0;
+                                                        int moveCount = 0;
+                                                        int errorCount = 0;
                                                         for (int row = 0; row < table.getRowCount(); row++) {
-                                                            tableModel.get(row).getFile().replaceAll("\\P{Print}", "");
+                                                            if (tableModel.get(row).getFile().isDirectory()) {
+                                                                folderCount++;
+                                                                // TODO make this as a customizable
+                                                                int result = tableModel.get(row).getFile().moveSubfolder("#");
+                                                                if (result > 0) {
+                                                                    moveCount += result;
+                                                                } else {
+                                                                    errorCount++;
+                                                                }
+                                                            }
                                                         }
                                                         tableModel.update();
+                                                        makeAlert("Subfolder", "Processed "
+                                                                        + folderCount + " folder(s) with "
+                                                                        + moveCount + " move(s) and "
+                                                                        + errorCount + " error(s)", INFORMATION_MESSAGE, CLOSED_OPTION, CLOSED_OPTION,
+                                                                null, null);
                                                     }
                                                 }, null);
                                     }

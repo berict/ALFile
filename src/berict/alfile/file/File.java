@@ -192,9 +192,22 @@ public class File extends java.io.File {
         }
     }
 
-    public void moveSubfolder() {
+    public int moveSubfolder(String separator) {
         if (isDirectory()) {
-
+            int process = 0;
+            for (java.io.File subfolder : listFiles()) {
+                if (subfolder.isDirectory()) {
+                    for (java.io.File file : subfolder.listFiles()) {
+                        if (move(file.getAbsolutePath(),
+                                getFullPath() + SEPARATOR + subfolder.getName() + separator + file.getName())) {
+                            process++;
+                        }
+                    }
+                }
+            }
+            return process;
+        } else {
+            return -1;
         }
     }
 
