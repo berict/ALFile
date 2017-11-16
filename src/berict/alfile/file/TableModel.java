@@ -62,6 +62,10 @@ public class TableModel extends AbstractTableModel {
         updateFromDataList();
     }
 
+    public int size() {
+        return dataList.size();
+    }
+
     public FileTableItem get(int row) {
         return dataList.get(row);
     }

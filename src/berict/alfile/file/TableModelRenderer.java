@@ -8,9 +8,17 @@ import static berict.alfile.main.form.MainForm.tableModel;
 
 public class TableModelRenderer extends DefaultTableCellRenderer {
 
+    private Runnable runnable;
+
     public TableModelRenderer() {
         setOpaque(true);
         setHorizontalAlignment(SwingConstants.LEFT);
+    }
+
+    public TableModelRenderer(Runnable runnable) {
+        setOpaque(true);
+        setHorizontalAlignment(SwingConstants.LEFT);
+        this.runnable = runnable;
     }
 
     @Override
@@ -37,6 +45,9 @@ public class TableModelRenderer extends DefaultTableCellRenderer {
                     setToolTipText("Changed file");
                 }
             }
+        }
+        if (runnable != null) {
+            runnable.run();
         }
         return component;
     }

@@ -39,9 +39,6 @@ public class MainForm extends JFrame {
 
     public static TableModel tableModel;
 
-    public int fileCount = 0;
-    public int selectedCount = 0;
-
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
 
@@ -106,13 +103,19 @@ public class MainForm extends JFrame {
         processAllButton.setSelected(true);
 
         statusPanel = new JPanel();
-        status = new JLabel("No items to select", JLabel.LEFT);
+        status = new JLabel("0 items", JLabel.LEFT);
         statusPanel.setLayout(new BorderLayout());
         statusPanel.add(status, BorderLayout.WEST);
+        statusPanel.setBorder(new EmptyBorder(2, 8, 2, 0));
         add("South", statusPanel);
 
         // add styles
-        TableModelRenderer renderer = new TableModelRenderer();
+        TableModelRenderer renderer = new TableModelRenderer(new Runnable() {
+            @Override
+            public void run() {
+                refreshStatus();
+            }
+        });
         TableColumnModel columnModel = table.getColumnModel();
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setCellRenderer(renderer);
@@ -125,7 +128,6 @@ public class MainForm extends JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                statusRefresh();
             }
 
             @Override
@@ -283,7 +285,6 @@ public class MainForm extends JFrame {
                         // duplicate
                         ++duplicateCount;
                     }
-                    statusRefresh();
                 }
                 if (duplicateCount > 0) {
                     if (duplicateCount == 1) {
@@ -800,10 +801,33 @@ public class MainForm extends JFrame {
         });
     }
 
-    private void statusRefresh() {
-        fileCount = table.getRowCount();
-        selectedCount = table.getSelectedRowCount();
-        status.setText(fileCount + " items exist,  " + selectedCount + " items selected.");
+    private void refreshStatus() {
+        int fileCount = tableModel.size();
+        int modifiedCount = tableModel.getModifiedCount();
+        int selectedCount = table.getSelectedRowCount();
+
+        String text;
+
+        if (fileCount < 1) {
+            text = "0 items    ";
+        } else if (fileCount > 1) {
+            text = fileCount + " items    ";
+        } else {
+            text = "1 items    ";
+        }
+
+        if (selectedCount > 1) {
+            text += selectedCount + " items selected    ";
+        } else if (selectedCount == 1) {
+            text += "1 item selected    ";
+        }
+
+        if (modifiedCount > 1) {
+            text += modifiedCount + " items modified";
+        } else if (modifiedCount == 1) {
+            text += "1 item modified";
+        }
+        status.setText(text);
     }
 
     private boolean process(int row) {
