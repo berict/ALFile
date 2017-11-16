@@ -34,7 +34,7 @@ public class TableModelRenderer extends DefaultTableCellRenderer {
         } else {
             component.setForeground(Color.BLACK);
             setToolTipText(null);
-            if (column == 1) {
+            if (column == 2) {
                 if (tableModel.get(row).hasDuplicate()) {
                     // duplicate found
                     component.setFont(new Font("Default", Font.ITALIC, 12));

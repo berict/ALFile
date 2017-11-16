@@ -96,6 +96,7 @@ public class MainForm extends JFrame {
         table.setModel(tableModel);
         table.setSize(500, 300);
         table.setRowHeight(30);
+        table.getColumn("Type").setMaxWidth(48);
 
         radioGroup = new ButtonGroup();
         radioGroup.add(processAllButton);
@@ -760,7 +761,35 @@ public class MainForm extends JFrame {
         subfolderButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // # 21
+                if (table.getRowCount() > 0) {
+                    makeWarningDialog("This will move subfolder contents to selected folder. Continue?", YES_NO_OPTION, YES_OPTION,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (table.getSelectedRows().length > 0) {
+                                        // has selected rows
+                                        for (int row : table.getSelectedRows()) {
+                                            tableModel.get(row).getFile().replaceAll("\\P{Print}", "");
+                                        }
+                                        tableModel.update();
+                                    } else {
+                                        // doesn't have selected rows
+                                        makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        for (int row = 0; row < table.getRowCount(); row++) {
+                                                            tableModel.get(row).getFile().replaceAll("\\P{Print}", "");
+                                                        }
+                                                        tableModel.update();
+                                                    }
+                                                }, null);
+                                    }
+                                }
+                            }, null);
+                } else {
+                    makeErrorAlert("No folder found");
+                }
             }
         });
 

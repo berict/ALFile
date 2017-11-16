@@ -11,7 +11,7 @@ public class TableModelListener implements javax.swing.event.TableModelListener 
         int row = e.getFirstRow();
         int column = e.getColumn(); // should always be 1 (the original)
 
-        if (column == 1) {
+        if (column == 2) {
             // only capture changed file names column
             TableModel tableModel = (TableModel) e.getSource();
             String cellValue = tableModel.getValueAt(row, column).toString();

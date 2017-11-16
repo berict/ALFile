@@ -1,5 +1,7 @@
 package berict.alfile.file;
 
+import com.sun.istack.internal.Nullable;
+
 import java.net.URI;
 import java.text.NumberFormat;
 
@@ -187,6 +189,22 @@ public class File extends java.io.File {
             }
         } else {
             makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
+        }
+    }
+
+    public void moveSubfolder() {
+        if (isDirectory()) {
+
+        }
+    }
+
+    @Nullable
+    public String getExtension() {
+        String names[] = fileName.split("\\.");
+        if (names.length > 0) {
+            return names[names.length - 1];
+        } else {
+            return null;
         }
     }
 

@@ -20,13 +20,15 @@ public class FileTableItem {
     }
 
     public Object[] toObjects() {
-        Object items[] = new Object[3];
+        Object items[] = new Object[4];
+        // file type
+        items[0] = getType();
         // original file name
-        items[0] = file.getOriginal().getName();
+        items[1] = file.getOriginal().getName();
         // changed file name
-        items[1] = file.getFileName();
+        items[2] = file.getFileName();
         // file location
-        items[2] = getLocation();
+        items[3] = getLocation();
 
         return items;
     }
@@ -66,6 +68,16 @@ public class FileTableItem {
             return stringBuilder.toString();
         } else {
             return file.getOriginal().getParentFile().getAbsolutePath() + SEPARATOR;
+        }
+    }
+
+    private String getType() {
+        if (file.isFile()) {
+            return "file/" + file.getExtension();
+        } else if (file.isDirectory()) {
+            return "folder";
+        } else {
+            return "file";
         }
     }
 

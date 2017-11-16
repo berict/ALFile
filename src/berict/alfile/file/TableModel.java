@@ -12,6 +12,7 @@ public class TableModel extends AbstractTableModel {
 
     // example from @link http://www.java2s.com/Code/Java/Swing-JFC/TablewithacustomTableModel.htm
     private String[] columnNames = {
+            "Type",
             "Original File names",
             "Changed File names",
             "Location"
@@ -153,7 +154,7 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return column == 1;
+        return column == 2;
     }
 
     public void setValueAt(Object value, int row, int col) {
