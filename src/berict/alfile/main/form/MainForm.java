@@ -42,6 +42,8 @@ public class MainForm extends JFrame {
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
 
+    public String[] originalNames = new String[99];
+
     public MainForm() {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setContentPane(parentPanel);
@@ -49,6 +51,7 @@ public class MainForm extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("AlFile");
 
+        // TODO icon not showing
         ImageIcon img = new ImageIcon("icon.png");
         setIconImage(img.getImage());
 
@@ -115,6 +118,7 @@ public class MainForm extends JFrame {
                         if (Objects.equals(file.getName(), fileNameList[i])) {
                             System.out.println("File name " + fileNameList[i] + " is already exist");
                         } else {
+                            originalNames[i] = fileNameList[i];
                             tableModel.add(new FileTableItem(file));
                             fileNameList[i] = file.getName();
                         }
@@ -425,29 +429,48 @@ public class MainForm extends JFrame {
     private void createPopupMenu() {
         popupMenu = new JPopupMenu();
 
+        // revert change menu
         JMenuItem revertM = new JMenuItem("revert");
         revertM.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                for (int row : table.getSelectedRows()) {
+                    tableModel.get(row)
+                            .getFile()
+                            .revert();
+                }
+                System.out.println("Reverted changes.");
             }
         });
         popupMenu.add(revertM);
 
+        // apply change menu
         JMenuItem applyM = new JMenuItem("apply");
         applyM.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                if (DEBUG) {
+                    System.out.println("process selected");
+                }
+                for (int row : table.getSelectedRows()) {
+                    tableModel.get(row)
+                            .getFile()
+                            .apply(tableModel);
+                }
             }
         });
         popupMenu.add(applyM);
 
+        // remove item menu
         JMenuItem removeM = new JMenuItem("remove");
         removeM.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                for (int row : table.getSelectedRows()) {
+                    tableModel.get(row);
+                    tableModel.fireTableRowsDeleted(row, row);
+                    System.out.println("Selected row " + row + " is removed.");
+                }
             }
         });
         popupMenu.add(removeM);
