@@ -7,7 +7,9 @@ import berict.alfile.file.TableModelRenderer;
 import lib.FileDrop;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableColumnModel;
+import java.awt.*;
 import java.awt.event.*;
 
 import static berict.alfile.Main.DEBUG;
@@ -30,10 +32,15 @@ public class MainForm extends JFrame {
     private JTable table;
     private JButton subfolderButton;
     private JButton exportContentButton;
+    private JPanel statusPanel;
+    private JLabel status;
 
     private ButtonGroup radioGroup;
 
     public static TableModel tableModel;
+
+    public int fileCount = 0;
+    public int selectedCount = 0;
 
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
@@ -98,6 +105,12 @@ public class MainForm extends JFrame {
         radioGroup.add(processSelectedButton);
         processAllButton.setSelected(true);
 
+        statusPanel = new JPanel();
+        status = new JLabel("No items to select", JLabel.LEFT);
+        statusPanel.setLayout(new BorderLayout());
+        statusPanel.add(status, BorderLayout.WEST);
+        add("South", statusPanel);
+
         // add styles
         TableModelRenderer renderer = new TableModelRenderer();
         TableColumnModel columnModel = table.getColumnModel();
@@ -112,6 +125,7 @@ public class MainForm extends JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                statusRefresh();
             }
 
             @Override
@@ -269,6 +283,7 @@ public class MainForm extends JFrame {
                         // duplicate
                         ++duplicateCount;
                     }
+                    statusRefresh();
                 }
                 if (duplicateCount > 0) {
                     if (duplicateCount == 1) {
@@ -296,7 +311,15 @@ public class MainForm extends JFrame {
                     buttonGroup.add(first);
                     all.setSelected(true);
 
+                    JPanel regexHelp = new JPanel();
+                    regexHelp.setLayout(new BorderLayout());
+                    regexHelp.add(getRegexHelp(newString), BorderLayout.WEST);
+                    JLabel helpText = new JLabel("Click to append expression.");
+                    helpText.setBorder(new EmptyBorder(4, 0, 8, 0));
+                    regexHelp.add(helpText, BorderLayout.SOUTH);
+
                     final JComponent[] inputs = new JComponent[]{
+                            regexHelp,
                             new JLabel("String to replace"),
                             oldString,
                             new JLabel("New string"),
@@ -733,6 +756,20 @@ public class MainForm extends JFrame {
             }
         });
 
+        subfolderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // # 21
+            }
+        });
+
+        exportContentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // # 12
+            }
+        });
+
         processButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -763,6 +800,12 @@ public class MainForm extends JFrame {
         });
     }
 
+    private void statusRefresh() {
+        fileCount = table.getRowCount();
+        selectedCount = table.getSelectedRowCount();
+        status.setText(fileCount + " items exist,  " + selectedCount + " items selected.");
+    }
+
     private boolean process(int row) {
         if (tableModel.get(row)
                 .getFile()
@@ -772,6 +815,102 @@ public class MainForm extends JFrame {
         } else {
             return false;
         }
+    }
+
+    private JComponent getRegexHelp(JTextField textTarget) {
+        String tabTitles[] = {
+                "Character",
+                "Predefined character",
+                "Boundary matches",
+                "Groups & Back references",
+                "Logical operations & Quantifiers"
+        };
+
+        String regex[][][] = {
+                {
+                        {"[abc]", "matches a or b, or c"},
+                        {"[^abc]", "negation, matches everything except a, b, or c"},
+                        {"[a-c]", "range, matches a or b, or c"},
+                        {"[a-c[f-h]]", "union, matches a, b, c, f, g, h"},
+                        {"[a-c&&[b-c]]", "intersection, matches b or c"},
+                        {"[a-c&&[^b-c]]", "subtraction, matches a"},
+                },
+                {
+                        {".", "Any character"},
+                        {"\\d", "A digit: [0-9]"},
+                        {"\\D", "A non-digit: [^0-9]"},
+                        {"\\s", "A whitespace character: [ \\t\\n\\x0B\\f\\r]"},
+                        {"\\S", "A non-whitespace character: [^\\s]"},
+                        {"\\w", "A word character: [a-zA-Z_0-9]"},
+                        {"\\W", "A non-word character: [^\\w]"},
+                },
+                {
+                        {"^", "The beginning of a line"},
+                        {"$", "The end of a line"},
+                        {"\\b", "A word boundary"},
+                        {"\\B", "A non-word boundary"},
+                        {"\\A", "The beginning of the input"},
+                        {"\\G", "The end of the previous match"},
+                        {"\\Z", "The end of the input but for the final terminator, if any"},
+                        {"\\z", "The end of the input"},
+                },
+                {
+                        {"(...)", "defines a group"},
+                        {"\\N", "refers to a matched group"},
+                        {"(\\d\\d)", "a group of two digits"},
+                        {"(\\d\\d)/\\1", "two digits repeated twice"},
+                        {"\\1", "refers to the matched group"},
+                },
+                {
+                        {"XY", "X then Y"},
+                        {"X|Y", "X or Y"},
+                        {"X?", "X, once or not at all"},
+                        {"X*", "X, zero or more times"},
+                        {"X+", "X, one or more times"},
+                        {"X{n}", "X, exactly n times"},
+                        {"X{n,}", "X, at least n times"},
+                        {"X{n,m}", "X, at least n but not more than m times"},
+                }
+        };
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        for (int i = 0; i < tabTitles.length; i++) {
+            JPanel panel = new JPanel(false);
+            panel.setLayout(new GridLayout(regex[i].length, 2));
+
+            for (int j = 0; j < regex[i].length; j++) {
+                JLabel expression = new JLabel(regex[i][j][0]);
+                expression.addMouseListener(new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        textTarget.setText(textTarget.getText() + " " + expression.getText());
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                    }
+                });
+                panel.add(expression);
+                panel.add(new JLabel(regex[i][j][1]));
+            }
+
+            tabbedPane.addTab(tabTitles[i], panel);
+        }
+
+        return tabbedPane;
     }
 
     private void showInExplorer(String path) {
