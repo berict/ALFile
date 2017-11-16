@@ -42,8 +42,8 @@ public class MainForm extends JFrame {
     public static int WINDOW_WIDTH = 960;
     public static int WINDOW_HEIGHT = 540;
 
-    public static int WINDOW_MIN_WIDTH = 500;
-    public static int WINDOW_MIN_HEIGHT = 300;
+    public static int WINDOW_MIN_WIDTH = 600;
+    public static int WINDOW_MIN_HEIGHT = 420;
 
     public MainForm() {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -804,34 +804,54 @@ public class MainForm extends JFrame {
             }
         });
 
+        processButton.setMinimumSize(new Dimension(processButton.getWidth(), 36));
         processButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (processAllButton.isSelected()) {
-                    if (!tableModel.hasDuplicate()) {
-                        if (DEBUG) {
-                            System.out.println("process all");
+                if (table.getRowCount() > 0) {
+                    int processCount = 0;
+                    if (processAllButton.isSelected()) {
+                        if (!tableModel.hasDuplicate()) {
+                            if (DEBUG) {
+                                System.out.println("process all");
+                            }
+                            for (int row = 0; row < table.getRowCount(); row++) {
+                                process(row);
+                                processCount++;
+                            }
+                        } else {
+                            makeErrorAlert("Duplicated file name found");
                         }
-                        for (int row = 0; row < table.getRowCount(); row++) {
-                            process(row);
+                    } else if (processSelectedButton.isSelected()) {
+                        if (!tableModel.hasDuplicate(table.getSelectedRow())) {
+                            if (DEBUG) {
+                                System.out.println("process selected");
+                            }
+                            for (int row : table.getSelectedRows()) {
+                                process(row);
+                                processCount++;
+                            }
+                        } else {
+                            makeErrorAlert("Duplicated file name found");
                         }
-                    } else {
-                        makeErrorAlert("Duplicated file name found");
                     }
-                } else if (processSelectedButton.isSelected()) {
-                    if (!tableModel.hasDuplicate(table.getSelectedRow())) {
-                        if (DEBUG) {
-                            System.out.println("process selected");
-                        }
-                        for (int row : table.getSelectedRows()) {
-                            process(row);
-                        }
-                    } else {
-                        makeErrorAlert("Duplicated file name found");
+                    if (DEBUG) {
+                        System.out.println("Processed " + processCount);
                     }
+                    if (processCount == 1) {
+                        setStatus("Processed 1 file");
+                    } else if (processCount > 1) {
+                        setStatus("Processed " + processCount + " files");
+                    }
+                } else {
+                    makeErrorAlert("No file found");
                 }
             }
         });
+    }
+
+    private void setStatus(String text) {
+        status.setText(text);
     }
 
     private void refreshStatus() {

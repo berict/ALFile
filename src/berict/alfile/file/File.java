@@ -200,9 +200,13 @@ public class File extends java.io.File {
 
     @Nullable
     public String getExtension() {
-        String names[] = fileName.split("\\.");
-        if (names.length > 0) {
-            return names[names.length - 1];
+        String names[] = original.getName().split("\\.");
+        if (original.getName().contains(".")) {
+            if (names.length > 0) {
+                return names[names.length - 1];
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

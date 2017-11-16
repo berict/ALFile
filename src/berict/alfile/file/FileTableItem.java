@@ -72,7 +72,7 @@ public class FileTableItem {
     }
 
     private String getType() {
-        if (file.isFile()) {
+        if (file.isFile() && file.getExtension() != null) {
             return "file/" + file.getExtension();
         } else if (file.isDirectory()) {
             return "folder";
