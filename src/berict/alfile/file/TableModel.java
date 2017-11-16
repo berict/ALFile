@@ -91,6 +91,15 @@ public class TableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    private int checkModified() {
+        int unModifiedCount = 0;
+        for (int i = 0; i < dataList.size(); i++) {
+
+        }
+
+        return unModifiedCount;
+    }
+
     private Object[][] getData() {
         Object object[][] = new Object[dataList.size()][3];
 

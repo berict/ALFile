@@ -8,10 +8,7 @@ import lib.FileDrop;
 
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 
 import static berict.alfile.Main.DEBUG;
@@ -43,7 +40,35 @@ public class MainForm extends JFrame {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setContentPane(parentPanel);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        //setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int modifiedCount = 0;
+                for (int i = 0; i < tableModel.getRowCount(); i++) {
+                    row = table.getSelectedRows();
+                    boolean isModified = tableModel.get(row[i]).isModified();
+                    if (isModified)
+                        modifiedCount++;
+                }
+                String title = "Modified files exist";
+                String msg = "Modified files exist, Do you want to process them?";
+                makeDialog(title, msg, YES_NO_OPTION, YES_OPTION,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (DEBUG) {
+                                    System.out.println("process all");
+                                }
+                                for (int row = 0; row < table.getRowCount(); row++) {
+                                    tableModel.get(row)
+                                            .getFile()
+                                            .apply(tableModel);
+                                }
+                            }
+                        }, null);
+            }
+        });
         setTitle("AlFile");
 
         ImageIcon img = new ImageIcon("icon.png");
