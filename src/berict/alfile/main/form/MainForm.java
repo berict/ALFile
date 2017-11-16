@@ -29,6 +29,8 @@ public class MainForm extends JFrame {
     private JButton processButton;
     private JPanel centerPanel;
     private JTable table;
+    private JButton subfolderButton;
+    private JButton exportContentButton;
 
     private ButtonGroup radioGroup;
 
