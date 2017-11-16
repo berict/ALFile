@@ -35,6 +35,8 @@ public class MainForm extends JFrame {
 
     private ButtonGroup radioGroup;
 
+    public JPopupMenu popupMenu;
+
     public static TableModel tableModel;
 
     public static int WINDOW_WIDTH = 960;
@@ -86,8 +88,10 @@ public class MainForm extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3)
+                if (e.getButton() == MouseEvent.BUTTON3) {
                     onMouseRightClick();
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
             }
 
             @Override
@@ -414,7 +418,39 @@ public class MainForm extends JFrame {
     }
 
     private void onMouseRightClick(){
+        createPopupMenu();
         System.out.println("Right button clicked!");
+    }
+
+    private void createPopupMenu() {
+        popupMenu = new JPopupMenu();
+
+        JMenuItem revertM = new JMenuItem("revert");
+        revertM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        popupMenu.add(revertM);
+
+        JMenuItem applyM = new JMenuItem("apply");
+        applyM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        popupMenu.add(applyM);
+
+        JMenuItem removeM = new JMenuItem("remove");
+        removeM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        popupMenu.add(removeM);
     }
 
     private void makeDialog(String title, Object message,

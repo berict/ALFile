@@ -16,7 +16,6 @@ public class TableModel extends AbstractTableModel {
             "Changed File names",
             "Location"
     };
-
     @Override
     public int getColumnCount() {
         return columnNames.length;
