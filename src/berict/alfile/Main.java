@@ -19,4 +19,9 @@ public class Main {
         // form method
         MainFormController controller = new MainFormController();
     }
+
+    public static void log(String message) {
+        if (DEBUG)
+            System.out.println(message);
+    }
 }

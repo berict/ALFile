@@ -1,5 +1,7 @@
 package berict.alfile.file;
 
+import berict.alfile.Main;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 
@@ -34,19 +36,14 @@ public class TableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
-//        if (DEBUG) {
-//            System.out.println("getValueAt(" + row + ", " + col + ")");
-//        }
+//        Main.log("getValueAt(" + row + ", " + col + ")");
         return data[row][col];
     }
 
     public void add(FileTableItem item) {
         dataList.add(item);
         updateFromDataList();
-
-        if (DEBUG) {
-            System.out.println("Added value " + item.getFile().getFullPath());
-        }
+        Main.log("Added value " + item.getFile().getFullPath());
     }
 
     public void set(int row, FileTableItem item) {
@@ -158,32 +155,14 @@ public class TableModel extends AbstractTableModel {
     }
 
     public void setValueAt(Object value, int row, int col) {
-        if (DEBUG) {
-            System.out.println("Setting value at " + row + "," + col
+        Main.log("Setting value at " + row + "," + col
                     + " to " + value + " (an instance of "
                     + value.getClass() + ")");
-        }
 
         data[row][col] = value;
         fireTableCellUpdated(row, col);
 
-        if (DEBUG) {
-            System.out.println("New value of data:");
-            printDebugData();
-        }
+        Main.log("New value of data:");
     }
 
-    private void printDebugData() {
-        int numRows = getRowCount();
-        int numCols = getColumnCount();
-
-        for (int i = 0; i < numRows; i++) {
-            System.out.print("    row " + i + ":");
-            for (int j = 0; j < numCols; j++) {
-                System.out.print("  " + data[i][j]);
-            }
-            System.out.println();
-        }
-        System.out.println("--------------------------");
-    }
 }

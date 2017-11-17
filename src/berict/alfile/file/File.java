@@ -1,6 +1,6 @@
 package berict.alfile.file;
 
-import com.sun.istack.internal.Nullable;
+import berict.alfile.Main;
 
 import java.net.URI;
 import java.text.NumberFormat;
@@ -45,9 +45,7 @@ public class File extends java.io.File {
         original = this;
         initFromAbsolutePath(absolutePath);
 
-        if (DEBUG) {
-            System.out.println(toString());
-        }
+        Main.log(toString());
     }
 
     public File(java.io.File file) {
@@ -75,8 +73,7 @@ public class File extends java.io.File {
     private void initFromAbsolutePath(String absolutePath) {
         // initializes the path and fileName values
         int lastIndex = absolutePath.lastIndexOf(SEPARATOR);
-        System.out.println(SEPARATOR + "/" + lastIndex);
-
+        Main.log(SEPARATOR + "/" + lastIndex);
         path = absolutePath.substring(0, lastIndex + 1);
         fileName = absolutePath.substring(lastIndex + 1);
     }
@@ -105,7 +102,7 @@ public class File extends java.io.File {
 
             this.fileName = stringBuilder.toString();
         } else {
-            System.out.println("No filename found");
+            Main.log("No filename found");
         }
     }
 
@@ -140,7 +137,7 @@ public class File extends java.io.File {
                 // only uppercase the actual file 'name', not the extension
                 this.fileName = names[0] + "." + replacement;
             } else {
-                System.out.println("No filename found");
+                Main.log("No filename found");
             }
         } else {
             makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
@@ -184,7 +181,7 @@ public class File extends java.io.File {
 
                     this.fileName = stringBuilder.toString();
                 } else {
-                    System.out.println("No filename found");
+                    Main.log("No filename found");
                 }
             }
         } else {
@@ -233,7 +230,6 @@ public class File extends java.io.File {
         }
     }
 
-    @Nullable
     public String getExtension() {
         String names[] = original.getName().split("\\.");
         if (original.getName().contains(".")) {
@@ -267,7 +263,7 @@ public class File extends java.io.File {
             this.fileName = numberFormat.format(index) + fileName;
         } else {
             // TODO this should be a dialog
-            System.out.println("Digit should be bigger than the index value");
+            Main.log("Digit should be bigger than the index value");
         }
     }
 
@@ -291,7 +287,7 @@ public class File extends java.io.File {
 
                     this.fileName = stringBuilder.toString();
                 } else {
-                    System.out.println("No filename found");
+                    Main.log("No filename found");
                 }
             }
         } else {
@@ -329,9 +325,7 @@ public class File extends java.io.File {
                 // changes the filename twice to change
                 result = move(getOriginal().getAbsolutePath(), getFullPath() + ".alfile");
                 result = result | move(getFullPath() + ".alfile", getFullPath());
-                if (DEBUG) {
-                    System.out.println("Double switch");
-                }
+                Main.log("Double switch");
             } else {
                 result = rename(this);
             }

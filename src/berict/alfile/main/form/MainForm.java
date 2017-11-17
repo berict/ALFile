@@ -1,5 +1,6 @@
 package berict.alfile.main.form;
 
+import berict.alfile.Main;
 import berict.alfile.file.*;
 import lib.FileDrop;
 
@@ -149,14 +150,10 @@ public class MainForm extends JFrame {
                         (end[0] >= 0 && end[0] < table.getRowCount())) {
                     if (start[0] <= end[0]) {
                         table.setRowSelectionInterval(start[0], end[0]);
-                        if (DEBUG) {
-                            System.out.println("start = " + start[0] + " / end = " + end[0]);
-                        }
+                        Main.log("start = " + start[0] + " / end = " + end[0]);
                     } else {
                         table.setRowSelectionInterval(end[0], start[0]);
-                        if (DEBUG) {
-                            System.out.println("start = " + end[0] + " / end = " + start[0]);
-                        }
+                        Main.log("start = " + end[0] + " / end = " + start[0]);
                     }
                 } else {
                     table.clearSelection();
@@ -180,9 +177,7 @@ public class MainForm extends JFrame {
                                 for (int index : row) {
                                     if (tableModel.get(index).isModified()) {
                                         tableModel.get(index).getFile().revert();
-                                        if (DEBUG) {
-                                            System.out.println("Menu.revert index=" + index);
-                                        }
+                                        Main.log("Menu.revert index=" + index);
                                     }
                                 }
                                 tableModel.update();
@@ -196,9 +191,7 @@ public class MainForm extends JFrame {
                                         if (!tableModel.get(index).getFile().apply(tableModel)) {
                                             makeErrorAlert("Failed to process");
                                         }
-                                        if (DEBUG) {
-                                            System.out.println("Menu.process index=" + index);
-                                        }
+                                        Main.log("Menu.process index=" + index);
                                     }
                                 }
                             }
@@ -214,9 +207,8 @@ public class MainForm extends JFrame {
                             for (int i = row.length - 1; i >= 0; i--) {
                                 int index = row[i];
                                 tableModel.remove(index);
-                                if (DEBUG) {
-                                    System.out.println("Menu.remove index=" + index);
-                                }
+                                Main.log("Menu.remove index=" + index);
+
                             }
                         }
                     });
@@ -319,7 +311,7 @@ public class MainForm extends JFrame {
 
                     JPanel regexHelp = new JPanel();
                     regexHelp.setLayout(new BorderLayout());
-                    regexHelp.add(getRegexHelp(newString), BorderLayout.WEST);
+                    regexHelp.add(getRegexHelp(oldString), BorderLayout.WEST);
                     JLabel helpText = new JLabel("Click to append expression.");
                     helpText.setBorder(new EmptyBorder(4, 0, 8, 0));
                     regexHelp.add(helpText, BorderLayout.SOUTH);
@@ -539,7 +531,7 @@ public class MainForm extends JFrame {
                             new Runnable() {
                                 @Override
                                 public void run() {
-                                    System.out.println(insertString.getText());
+                                    Main.log(insertString.getText());
                                     if (insertString.getText() != null) {
                                         if (isAvailableForFileName(insertString.getText())) {
                                             boolean isFront = front.isSelected();
@@ -776,16 +768,7 @@ public class MainForm extends JFrame {
                                         int moveCount = 0;
                                         int errorCount = 0;
                                         for (int row : table.getSelectedRows()) {
-                                            if (tableModel.get(row).getFile().isDirectory()) {
-                                                folderCount++;
-                                                // TODO make this as a customizable
-                                                int result = tableModel.get(row).getFile().moveSubfolder("#");
-                                                if (result > 0) {
-                                                    moveCount += result;
-                                                } else {
-                                                    errorCount++;
-                                                }
-                                            }
+                                            countSubfolderLog(row, folderCount, moveCount, errorCount);
                                         }
                                         tableModel.update();
                                         makeAlert("Subfolder", "Processed "
@@ -803,16 +786,7 @@ public class MainForm extends JFrame {
                                                         int moveCount = 0;
                                                         int errorCount = 0;
                                                         for (int row = 0; row < table.getRowCount(); row++) {
-                                                            if (tableModel.get(row).getFile().isDirectory()) {
-                                                                folderCount++;
-                                                                // TODO make this as a customizable
-                                                                int result = tableModel.get(row).getFile().moveSubfolder("#");
-                                                                if (result > 0) {
-                                                                    moveCount += result;
-                                                                } else {
-                                                                    errorCount++;
-                                                                }
-                                                            }
+                                                            countSubfolderLog(row, folderCount, moveCount, errorCount);
                                                         }
                                                         tableModel.update();
                                                         makeAlert("Subfolder", "Processed "
@@ -903,9 +877,7 @@ public class MainForm extends JFrame {
                     int processCount = 0;
                     if (processAllButton.isSelected()) {
                         if (!tableModel.hasDuplicate()) {
-                            if (DEBUG) {
-                                System.out.println("process all");
-                            }
+                            Main.log("process all");
                             for (int row = 0; row < table.getRowCount(); row++) {
                                 process(row);
                                 processCount++;
@@ -915,9 +887,7 @@ public class MainForm extends JFrame {
                         }
                     } else if (processSelectedButton.isSelected()) {
                         if (!tableModel.hasDuplicate(table.getSelectedRow())) {
-                            if (DEBUG) {
-                                System.out.println("process selected");
-                            }
+                            Main.log("process selected");
                             for (int row : table.getSelectedRows()) {
                                 process(row);
                                 processCount++;
@@ -926,9 +896,7 @@ public class MainForm extends JFrame {
                             makeErrorAlert("Duplicated file name found");
                         }
                     }
-                    if (DEBUG) {
-                        System.out.println("Processed " + processCount);
-                    }
+                    Main.log("Processed " + processCount);
                     if (processCount == 1) {
                         setStatus("Processed 1 file");
                     } else if (processCount > 1) {
@@ -939,6 +907,21 @@ public class MainForm extends JFrame {
                 }
             }
         });
+    }
+
+
+
+    private void countSubfolderLog(int row, int folderCount, int moveCount, int errorCount) {
+        if (tableModel.get(row).getFile().isDirectory()) {
+            folderCount++;
+            // TODO make this as a customizable
+            int result = tableModel.get(row).getFile().moveSubfolder("#");
+            if (result > 0) {
+                moveCount += result;
+            } else {
+                errorCount++;
+            }
+        }
     }
 
     private void setStatus(String text) {
@@ -1052,7 +1035,7 @@ public class MainForm extends JFrame {
                 expression.addMouseListener(new MouseListener() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        textTarget.setText(textTarget.getText() + " " + expression.getText());
+                        textTarget.setText(textTarget.getText() + expression.getText());
                     }
 
                     @Override

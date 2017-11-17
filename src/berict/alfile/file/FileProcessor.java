@@ -1,5 +1,7 @@
 package berict.alfile.file;
 
+import berict.alfile.Main;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,9 +19,7 @@ public class FileProcessor {
 
     public static boolean move(String source, String target) {
         if (new File(source).getOriginal().exists()) {
-            if (DEBUG) {
-                System.out.println("Move [" + source + "] to [" + target + "]");
-            }
+            Main.log("Move [" + source + "] to [" + target + "]");
             try {
                 Files.move(Paths.get(source), Paths.get(target), REPLACE_EXISTING);
                 return true;
@@ -30,9 +30,7 @@ public class FileProcessor {
                 return false;
             }
         } else {
-            if (DEBUG) {
-                System.out.println("File doesn't exist");
-            }
+            Main.log("File doesn't exist");
             return false;
         }
     }
