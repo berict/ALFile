@@ -23,9 +23,7 @@ public class FileProcessor {
                 Files.move(Paths.get(source), Paths.get(target), REPLACE_EXISTING);
                 return true;
             } catch (IOException e) {
-                if (DEBUG) {
-                    e.printStackTrace();
-                }
+                Main.log(e.getMessage());
                 return false;
             }
         } else {
