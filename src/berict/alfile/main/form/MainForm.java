@@ -83,7 +83,7 @@ public class MainForm extends JFrame {
         });
         setTitle("AlFile");
 
-        ImageIcon img = new ImageIcon("icon.png");
+        ImageIcon img = new ImageIcon("resource/icon.png");
         setIconImage(img.getImage());
 
         try {
