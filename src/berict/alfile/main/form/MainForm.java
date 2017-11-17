@@ -319,7 +319,7 @@ public class MainForm extends JFrame {
 
                     JPanel regexHelp = new JPanel();
                     regexHelp.setLayout(new BorderLayout());
-                    regexHelp.add(getRegexHelp(newString), BorderLayout.WEST);
+                    regexHelp.add(getRegexHelp(oldString), BorderLayout.WEST);
                     JLabel helpText = new JLabel("Click to append expression.");
                     helpText.setBorder(new EmptyBorder(4, 0, 8, 0));
                     regexHelp.add(helpText, BorderLayout.SOUTH);
@@ -1047,7 +1047,7 @@ public class MainForm extends JFrame {
                 expression.addMouseListener(new MouseListener() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        textTarget.setText(textTarget.getText() + " " + expression.getText());
+                        textTarget.setText(textTarget.getText() + expression.getText());
                     }
 
                     @Override
