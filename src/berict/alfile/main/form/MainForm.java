@@ -33,7 +33,6 @@ public class MainForm extends JFrame {
     private JTable table;
     private JButton subfolderButton;
     private JButton exportContentButton;
-    private JPanel tableBottomPanel;
     private JPanel statusPanel;
     private JLabel status;
 
