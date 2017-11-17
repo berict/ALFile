@@ -12,7 +12,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 
-import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.File.*;
 import static berict.alfile.file.FileProcessor.writeToFile;
 import static javax.swing.JOptionPane.*;
@@ -1072,9 +1071,7 @@ public class MainForm extends JFrame {
         try {
             Runtime.getRuntime().exec("explorer.exe /select," + path);
         } catch (Exception ex) {
-            if (DEBUG) {
-                ex.printStackTrace();
-            }
+            Main.log(ex.getMessage());
             makeErrorAlert("Can't show in explorer");
         }
     }

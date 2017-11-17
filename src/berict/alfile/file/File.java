@@ -5,7 +5,6 @@ import berict.alfile.Main;
 import java.net.URI;
 import java.text.NumberFormat;
 
-import static berict.alfile.Main.DEBUG;
 import static berict.alfile.file.FileProcessor.move;
 import static berict.alfile.file.FileProcessor.rename;
 import static berict.alfile.main.form.MainForm.makeErrorAlert;

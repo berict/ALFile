@@ -5,7 +5,6 @@ import berict.alfile.Main;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 
-import static berict.alfile.Main.DEBUG;
 
 public class TableModel extends AbstractTableModel {
     private Object[][] data = new Object[0][3];

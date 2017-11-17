@@ -4,7 +4,6 @@ import berict.alfile.Main;
 
 import javax.swing.event.TableModelEvent;
 
-import static berict.alfile.Main.DEBUG;
 
 public class TableModelListener implements javax.swing.event.TableModelListener {
 
