@@ -2,7 +2,6 @@
 /out
 
 # Package Files #
-*.jar
 *.war
 *.zip
 *.tar.gz
