@@ -33,6 +33,7 @@ public class MainForm extends JFrame {
     private JTable table;
     private JButton subfolderButton;
     private JButton exportContentButton;
+    private JPanel tableBottomPanel;
     private JPanel statusPanel;
     private JLabel status;
 
@@ -99,9 +100,12 @@ public class MainForm extends JFrame {
     private void setUI() {
         tableModel = new TableModel();
         table.setModel(tableModel);
-        table.setSize(500, 300);
+        //table.setSize(500, 300);
         table.setRowHeight(30);
         table.getColumn("Type").setMaxWidth(48);
+
+        System.out.println("table [" + table.getWidth() + ", " + table.getHeight() + "]");
+        System.out.println("center [" + centerPanel.getWidth() + ", " + centerPanel.getHeight() + "]");
 
         radioGroup = new ButtonGroup();
         radioGroup.add(processAllButton);
@@ -130,10 +134,33 @@ public class MainForm extends JFrame {
         final int[] start = new int[1];
         final int[] end = new int[1];
 
+        // drag and drop files
+        new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
+            public void filesDropped(java.io.File[] files) {
+                int duplicateCount = 0;
+                for (java.io.File file : files) {
+                    if (tableModel.search(file.getAbsolutePath()) < 0) {
+                        tableModel.add(new FileTableItem(file));
+                    } else {
+                        // duplicate
+                        ++duplicateCount;
+                    }
+                }
+                if (duplicateCount > 0) {
+                    if (duplicateCount == 1) {
+                        makeErrorAlert("A duplicate was found");
+                    } else {
+                        makeErrorAlert(duplicateCount + " duplicates were found");
+                    }
+                }
+            }
+        });
+
         table.addMouseListener(new MouseListener() {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                System.out.println("Click on table");
             }
 
             @Override
@@ -270,28 +297,6 @@ public class MainForm extends JFrame {
         });
 
         tableModel.addTableModelListener(new TableModelListener());
-
-        // drag and drop files
-        new FileDrop(System.out, centerPanel, new FileDrop.Listener() {
-            public void filesDropped(java.io.File[] files) {
-                int duplicateCount = 0;
-                for (java.io.File file : files) {
-                    if (tableModel.search(file.getAbsolutePath()) < 0) {
-                        tableModel.add(new FileTableItem(file));
-                    } else {
-                        // duplicate
-                        ++duplicateCount;
-                    }
-                }
-                if (duplicateCount > 0) {
-                    if (duplicateCount == 1) {
-                        makeErrorAlert("A duplicate was found");
-                    } else {
-                        makeErrorAlert(duplicateCount + " duplicates were found");
-                    }
-                }
-            }
-        });
 
         replaceButton.addActionListener(new ActionListener() {
             @Override
