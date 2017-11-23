@@ -104,8 +104,6 @@ public class MainForm extends JFrame {
         //table.setSize(500, 300);
         table.setRowHeight(30);
         table.getColumn("Type").setMaxWidth(48);
-        // TODO check working
-//        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         System.out.println("table [" + table.getWidth() + ", " + table.getHeight() + "]");
         System.out.println("center [" + centerPanel.getWidth() + ", " + centerPanel.getHeight() + "]");
