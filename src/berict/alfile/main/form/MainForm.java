@@ -6,11 +6,14 @@ import lib.FileDrop;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
+import java.util.Arrays;
 
 import static berict.alfile.file.File.*;
 import static berict.alfile.file.FileProcessor.writeToFile;
@@ -101,6 +104,8 @@ public class MainForm extends JFrame {
         //table.setSize(500, 300);
         table.setRowHeight(30);
         table.getColumn("Type").setMaxWidth(48);
+        // TODO check working
+//        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         System.out.println("table [" + table.getWidth() + ", " + table.getHeight() + "]");
         System.out.println("center [" + centerPanel.getWidth() + ", " + centerPanel.getHeight() + "]");
@@ -158,7 +163,6 @@ public class MainForm extends JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("Click on table");
             }
 
             @Override
@@ -191,11 +195,25 @@ public class MainForm extends JFrame {
 
                 if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
                     JPopupMenu popup = new JPopupMenu("Edit");
-                    JMenuItem revert = new JMenuItem("Revert changes");
+                    JMenuItem undo = new JMenuItem("Undo");
+                    JMenuItem revert = new JMenuItem("Revert all changes");
+                    JMenuItem history = new JMenuItem("Show history");
                     JMenuItem remove = new JMenuItem("Remove from list");
                     JMenuItem process = new JMenuItem("Process");
 
                     if (tableModel.isModified(row)) {
+                        undo.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                for (int index : row) {
+                                    if (tableModel.get(index).isModified()) {
+                                        tableModel.get(index).getFile().undo();
+                                        Main.log("Menu.undo index=" + index);
+                                    }
+                                }
+                                tableModel.update();
+                            }
+                        });
                         revert.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -208,6 +226,156 @@ public class MainForm extends JFrame {
                                 tableModel.update();
                             }
                         });
+                        if (row.length > 1) {
+                            history.setEnabled(false);
+                        } else {
+                            final int[] selectedRow = {-1};
+                            final FileTableItem item = tableModel.get(row[0]);
+                            history.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    String history[] = item.getFile().getHistory();
+                                    JTable historyTable = new JTable();
+
+                                    historyTable.setRowSelectionAllowed(true);
+                                    historyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                                    historyTable.setRowHeight(24);
+
+                                    class HistoryTableModel extends AbstractTableModel {
+
+                                        public String[][] data = new String[0][1];
+                                        public String[][] tableData = new String[0][1];
+
+                                        public HistoryTableModel(String[] data) {
+                                            this.data = new String[data.length][1];
+                                            this.tableData = new String[data.length][1];
+                                            for (int i = 0; i < data.length; i++) {
+                                                // only display 24 characters
+                                                this.data[i][0] = data[i];
+                                                this.tableData[i][0] = "..." + data[i].substring(data[i].length() - 36);
+                                            }
+                                            Main.log(Arrays.deepToString(data));
+                                        }
+
+                                        @Override
+                                        public int getRowCount() {
+                                            return data.length;
+                                        }
+
+                                        @Override
+                                        public int getColumnCount() {
+                                            return 1;
+                                        }
+
+                                        @Override
+                                        public Object getValueAt(int rowIndex, int columnIndex) {
+                                            return tableData[rowIndex][columnIndex];
+                                        }
+
+                                        @Override
+                                        public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                            return false;
+                                        }
+                                    }
+
+                                    class HistoryTableModelRenderer extends DefaultTableCellRenderer {
+
+                                        public HistoryTableModelRenderer() {
+                                            setOpaque(true);
+                                            setHorizontalAlignment(SwingConstants.LEFT);
+                                        }
+
+                                        @Override
+                                        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                                                       boolean isSelected, boolean hasFocus,
+                                                                                       int row, int column) {
+                                            Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                                            if (row == historyTable.getSelectedRow()) {
+                                                component.setBackground(hex2Rgb("#0078D7"));
+                                                component.setFont(new Font("Default", Font.PLAIN, 11));
+                                                setToolTipText(null);
+                                            } else if (row > historyTable.getSelectedRow()) {
+                                                component.setBackground(Color.LIGHT_GRAY);
+                                                component.setFont(new Font("Default", Font.ITALIC, 11));
+                                                setToolTipText("This will be undone");
+                                            } else {
+                                                component.setBackground(Color.WHITE);
+                                                component.setFont(new Font("Default", Font.PLAIN, 11));
+                                                setToolTipText(null);
+                                            }
+                                            component.setForeground(Color.BLACK);
+                                            return component;
+                                        }
+
+                                        public Color hex2Rgb(String colorStr) {
+                                            return new Color(
+                                                    Integer.valueOf(colorStr.substring(1, 3), 16),
+                                                    Integer.valueOf(colorStr.substring(3, 5), 16),
+                                                    Integer.valueOf(colorStr.substring(5, 7), 16));
+                                        }
+                                    }
+
+                                    HistoryTableModel historyTableModel = new HistoryTableModel(history);
+                                    HistoryTableModelRenderer modelRenderer = new HistoryTableModelRenderer();
+                                    TableColumnModel historyColumnModel = historyTable.getColumnModel();
+                                    for (int i = 0; i < historyColumnModel.getColumnCount(); i++) {
+                                        historyColumnModel.getColumn(i).setCellRenderer(modelRenderer);
+                                    }
+
+                                    historyTable.addMouseListener(new MouseListener() {
+                                        @Override
+                                        public void mouseClicked(MouseEvent e) {
+                                            for (int i = 0; i < historyColumnModel.getColumnCount(); i++) {
+                                                historyColumnModel.getColumn(i).setCellRenderer(modelRenderer);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void mousePressed(MouseEvent e) {
+                                        }
+
+                                        @Override
+                                        public void mouseReleased(MouseEvent e) {
+                                            selectedRow[0] = historyTable.getSelectedRow();
+                                            Main.log("Selected " + selectedRow[0]);
+                                        }
+
+                                        @Override
+                                        public void mouseEntered(MouseEvent e) {
+                                        }
+
+                                        @Override
+                                        public void mouseExited(MouseEvent e) {
+                                        }
+                                    });
+                                    historyTable.setModel(historyTableModel);
+                                    // select the last item
+                                    historyTable.setRowSelectionInterval(
+                                            historyTable.getRowCount() - 1,
+                                            historyTable.getRowCount() - 1
+                                    );
+                                    historyTable.setDefaultRenderer(Object.class, renderer);
+
+                                    JComponent components[] = {
+                                            historyTable,
+                                            new JLabel("Click item to undo")
+                                    };
+                                    showDialog("History", components,
+                                            PLAIN_MESSAGE, OK_OPTION, OK_OPTION,
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Main.log("Close");
+                                                    if (selectedRow[0] >= 0) {
+                                                        Main.log("Undo to " + selectedRow[0]);
+                                                        tableModel.get(row[0]).getFile().undo(selectedRow[0]);
+                                                        tableModel.update();
+                                                    }
+                                                }
+                                            }, null);
+                                }
+                            });
+                        }
                         process.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -222,6 +390,7 @@ public class MainForm extends JFrame {
                             }
                         });
                     } else {
+                        undo.setEnabled(false);
                         process.setEnabled(false);
                         revert.setEnabled(false);
                     }
@@ -238,7 +407,9 @@ public class MainForm extends JFrame {
                         }
                     });
 
+                    popup.add(undo);
                     popup.add(revert);
+                    popup.add(history);
                     popup.add(remove);
 
                     if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -771,7 +942,7 @@ public class MainForm extends JFrame {
                                         int moveCount = 0;
                                         int errorCount = 0;
                                         for (int row : table.getSelectedRows()) {
-                                            countSubfolderLog(row, folderCount, moveCount, errorCount);
+                                            printSubfolderResult(row, folderCount, moveCount, errorCount);
                                         }
                                         tableModel.update();
                                         makeAlert("Subfolder", "Processed "
@@ -789,7 +960,7 @@ public class MainForm extends JFrame {
                                                         int moveCount = 0;
                                                         int errorCount = 0;
                                                         for (int row = 0; row < table.getRowCount(); row++) {
-                                                            countSubfolderLog(row, folderCount, moveCount, errorCount);
+                                                            printSubfolderResult(row, folderCount, moveCount, errorCount);
                                                         }
                                                         tableModel.update();
                                                         makeAlert("Subfolder", "Processed "
@@ -912,9 +1083,7 @@ public class MainForm extends JFrame {
         });
     }
 
-
-
-    private void countSubfolderLog(int row, int folderCount, int moveCount, int errorCount) {
+    private void printSubfolderResult(int row, int folderCount, int moveCount, int errorCount) {
         if (tableModel.get(row).getFile().isDirectory()) {
             folderCount++;
             // TODO make this as a customizable
@@ -924,6 +1093,10 @@ public class MainForm extends JFrame {
             } else {
                 errorCount++;
             }
+            setStatus("Processed "
+                    + folderCount + " folder(s) with "
+                    + moveCount + " move(s) and "
+                    + errorCount + " error(s)");
         }
     }
 

@@ -4,6 +4,7 @@ import berict.alfile.Main;
 
 import java.net.URI;
 import java.text.NumberFormat;
+import java.util.Stack;
 
 import static berict.alfile.file.FileProcessor.move;
 import static berict.alfile.file.FileProcessor.rename;
@@ -37,12 +38,12 @@ public class File extends java.io.File {
     // path + fileName returns the whole absolutePath
 
     // backup for the changed file objects
-    private java.io.File original;
+    private Stack<String> historyStack = new Stack<>();
 
     public File(String absolutePath) {
         super(absolutePath);
-        original = this;
         initFromAbsolutePath(absolutePath);
+        addHistory();
 
         Main.log(toString());
     }
@@ -53,36 +54,64 @@ public class File extends java.io.File {
 
     public File(String parent, String child) {
         super(parent, child);
-        original = this;
         initFromAbsolutePath(super.getAbsolutePath());
+        addHistory();
     }
 
     public File(java.io.File parent, String child) {
         super(parent, child);
-        original = this;
         initFromAbsolutePath(super.getAbsolutePath());
+        addHistory();
     }
 
     public File(URI uri) {
         super(uri);
-        original = this;
         initFromAbsolutePath(super.getAbsolutePath());
+        addHistory();
+    }
+
+    private void addHistory() {
+        if (historyStack.size() < 1 || !getFullPath().equals(historyStack.peek())) {
+            // add different paths from last and new initialized paths
+            historyStack.add(getFullPath());
+        }
     }
 
     private void initFromAbsolutePath(String absolutePath) {
         // initializes the path and fileName values
         int lastIndex = absolutePath.lastIndexOf(SEPARATOR);
-        Main.log(SEPARATOR + "/" + lastIndex);
         path = absolutePath.substring(0, lastIndex + 1);
         fileName = absolutePath.substring(lastIndex + 1);
     }
 
     public void revert() {
-        initFromAbsolutePath(original.getAbsolutePath());
+        // revert to the first item
+        initFromAbsolutePath(historyStack.get(0));
+        popAll();
+    }
+
+    public void undo(int index) {
+        for (int i = 0; i < historyStack.size() - index; i++) {
+            undo();
+        }
+    }
+
+    public void undo() {
+        // get the previous history
+        if (historyStack.size() > 1) {
+            historyStack.pop();
+            initFromAbsolutePath(historyStack.peek());
+        }
+    }
+
+    private void popAll() {
+        historyStack = new Stack<>();
+        addHistory();
     }
 
     public void toLowerCase() {
         this.fileName = fileName.toLowerCase();
+        addHistory();
     }
 
     public void toUpperCase() {
@@ -100,6 +129,7 @@ public class File extends java.io.File {
             }
 
             this.fileName = stringBuilder.toString();
+            addHistory();
         } else {
             Main.log("No filename found");
         }
@@ -116,6 +146,7 @@ public class File extends java.io.File {
     public void replaceAll(String regex, String replacement) {
         if (isAvailableForFileName(replacement)) {
             this.fileName = fileName.replaceAll(regex, replacement);
+            addHistory();
         } else {
             makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
         }
@@ -124,6 +155,7 @@ public class File extends java.io.File {
     public void replaceFirst(String regex, String replacement) {
         if (isAvailableForFileName(replacement)) {
             this.fileName = fileName.replaceFirst(regex, replacement);
+            addHistory();
         } else {
             makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
         }
@@ -135,6 +167,7 @@ public class File extends java.io.File {
             if (names.length > 0) {
                 // only uppercase the actual file 'name', not the extension
                 this.fileName = names[0] + "." + replacement;
+                addHistory();
             } else {
                 Main.log("No filename found");
             }
@@ -155,6 +188,7 @@ public class File extends java.io.File {
     public void insertAtStart(String value) {
         if (isAvailableForFileName(value)) {
             this.fileName = value + fileName;
+            addHistory();
         } else {
             makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
         }
@@ -164,6 +198,7 @@ public class File extends java.io.File {
         if (isAvailableForFileName(value)) {
             if (containExtension) {
                 this.fileName = fileName + value;
+                addHistory();
             } else {
                 String names[] = fileName.split("\\.");
                 if (names.length > 0) {
@@ -179,6 +214,7 @@ public class File extends java.io.File {
                     }
 
                     this.fileName = stringBuilder.toString();
+                    addHistory();
                 } else {
                     Main.log("No filename found");
                 }
@@ -229,9 +265,9 @@ public class File extends java.io.File {
         }
     }
 
-    public String getExtension() {
-        String names[] = original.getName().split("\\.");
-        if (original.getName().contains(".")) {
+    public String getOriginalExtension() {
+        String names[] = getOriginal().getName().split("\\.");
+        if (getOriginal().getName().contains(".")) {
             if (names.length > 0) {
                 return names[names.length - 1];
             } else {
@@ -243,8 +279,8 @@ public class File extends java.io.File {
     }
 
     public String getType() {
-        if (isFile() && getExtension() != null) {
-            return "file/" + getExtension();
+        if (isFile() && getOriginalExtension() != null) {
+            return "file/" + getOriginalExtension();
         } else if (isDirectory()) {
             return "folder";
         } else {
@@ -270,6 +306,7 @@ public class File extends java.io.File {
         if (isAvailableForFileName(name)) {
             if (containExtension) {
                 this.fileName = name;
+                addHistory();
             } else {
                 String names[] = fileName.split("\\.");
                 if (names.length > 0) {
@@ -285,6 +322,7 @@ public class File extends java.io.File {
                     }
 
                     this.fileName = stringBuilder.toString();
+                    addHistory();
                 } else {
                     Main.log("No filename found");
                 }
@@ -311,7 +349,7 @@ public class File extends java.io.File {
     }
 
     public boolean isModified() {
-        return !getFileName().equals(getOriginal().getName());
+        return !getFileName().equals(getOriginal().getName()) || historyStack.size() > 1;
     }
 
     public boolean apply(TableModel tableModel) {
@@ -328,7 +366,7 @@ public class File extends java.io.File {
             } else {
                 result = rename(this);
             }
-            original = new java.io.File(getFullPath());
+            popAll();
             tableModel.update();
             return result;
         } else {
@@ -337,7 +375,7 @@ public class File extends java.io.File {
     }
 
     public java.io.File getOriginal() {
-        return original;
+        return new java.io.File(historyStack.get(0));
     }
 
     public String getFullPath() {
@@ -348,8 +386,12 @@ public class File extends java.io.File {
         return fileName;
     }
 
+    public String[] getHistory() {
+        return historyStack.toArray(new String[historyStack.size()]);
+    }
+
     @Override
     public String toString() {
-        return "path=" + path + ", fileName=" + fileName;
+        return "fileName=" + fileName;
     }
 }
