@@ -41,6 +41,7 @@ public class ImageFile extends File {
     protected void initFromAbsolutePath(String absolutePath) {
         super.initFromAbsolutePath(absolutePath);
         if (!isImage()) {
+            // clear the object if it is not a image file
             clear();
         }
     }
