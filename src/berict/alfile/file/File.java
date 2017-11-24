@@ -386,6 +386,27 @@ public class File extends java.io.File {
         return fileName;
     }
 
+    public String getFileName(boolean containExtension) {
+        if (containExtension) {
+            String names[] = fileName.split("\\.");
+            if (names.length > 0) {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < names.length - 1; i++) {
+                    if (stringBuilder.length() != 0) {
+                        stringBuilder.append(".");
+                    }
+                    stringBuilder.append(names[i]);
+                }
+                return stringBuilder.toString();
+            } else {
+                Main.log("No filename found");
+                return null;
+            }
+        } else {
+            return fileName;
+        }
+    }
+
     public String[] getHistory() {
         return historyStack.toArray(new String[historyStack.size()]);
     }

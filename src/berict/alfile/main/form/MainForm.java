@@ -750,6 +750,7 @@ public class MainForm extends JFrame {
         JMenuItem replaceWhitespace = new JMenuItem("Replace whitespace"); // #14
         JMenuItem pathToFileName = new JMenuItem("Path to file name"); // #13
         JMenuItem toAscii = new JMenuItem("File name to ASCII"); // #15
+        JMenuItem reverse = new JMenuItem("Reverse file name"); // #32
 
         replaceWhitespace.addActionListener(new ActionListener() {
             @Override
@@ -915,9 +916,47 @@ public class MainForm extends JFrame {
             }
         });
 
+        reverse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                makeWarningDialog("This will reverse the file name. Continue?", YES_NO_OPTION, YES_OPTION,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (table.getSelectedRows().length > 0) {
+                                    // has selected rows
+                                    for (int row : table.getSelectedRows()) {
+                                        String reversed = new StringBuilder(tableModel.get(row).getFile().getFileName(true))
+                                                .reverse()
+                                                .toString();
+                                        tableModel.get(row).getFile().setName(reversed, false);
+                                    }
+                                    tableModel.update();
+                                } else {
+                                    // doesn't have selected rows
+                                    makeWarningDialog("No file selected. Apply to all files?", YES_NO_OPTION, YES_OPTION,
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    for (int row = 0; row < table.getRowCount(); row++) {
+                                                        String reversed = new StringBuilder(tableModel.get(row).getFile().getFileName(true))
+                                                                .reverse()
+                                                                .toString();
+                                                        tableModel.get(row).getFile().setName(reversed, false);
+                                                    }
+                                                    tableModel.update();
+                                                }
+                                            }, null);
+                                }
+                            }
+                        }, null);
+            }
+        });
+
         popup.add(replaceWhitespace);
         popup.add(pathToFileName);
         popup.add(toAscii);
+        popup.add(reverse);
 
         advancedButton.addActionListener(new ActionListener() {
             @Override
