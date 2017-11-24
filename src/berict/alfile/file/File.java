@@ -14,10 +14,10 @@ public class File extends java.io.File {
 
     /**
      * The prefix concept is used to handle root directories on UNIX platforms, and drive specifiers, root directories and UNC pathnames on Microsoft Windows platforms, as follows:
-     *
+     * <p>
      * For UNIX platforms, the prefix of an absolute pathname is always "/". Relative pathnames have no prefix.
      * The abstract pathname denoting the root directory has the prefix "/" and an empty name sequence.
-     *
+     * <p>
      * For Microsoft Windows platforms, the prefix of a pathname that contains a drive specifier consists of the drive letter followed by ":" and possibly followed by "\\" if the pathname is absolute.
      * The prefix of a UNC pathname is "\\\\"; the hostname and the share name are the first two names in the name sequence.
      * A relative pathname that does not specify a drive has no prefix.
@@ -30,22 +30,19 @@ public class File extends java.io.File {
     public final static String RESTRICTED_CHARACTER = "\\ / : * ? \" < > |";
 
     // path : "some/dir/"
-    private String path;
+    protected String path;
 
     // fileName : "file.extension"
-    private String fileName;
+    protected String fileName;
 
     // path + fileName returns the whole absolutePath
 
     // backup for the changed file objects
-    private Stack<String> historyStack = new Stack<>();
+    protected Stack<String> historyStack = new Stack<>();
 
     public File(String absolutePath) {
         super(absolutePath);
         initFromAbsolutePath(absolutePath);
-        addHistory();
-
-        Main.log(toString());
     }
 
     public File(java.io.File file) {
@@ -55,33 +52,31 @@ public class File extends java.io.File {
     public File(String parent, String child) {
         super(parent, child);
         initFromAbsolutePath(super.getAbsolutePath());
-        addHistory();
     }
 
     public File(java.io.File parent, String child) {
         super(parent, child);
         initFromAbsolutePath(super.getAbsolutePath());
-        addHistory();
     }
 
     public File(URI uri) {
         super(uri);
         initFromAbsolutePath(super.getAbsolutePath());
-        addHistory();
     }
 
-    private void addHistory() {
+    protected void addHistory() {
         if (historyStack.size() < 1 || !getFullPath().equals(historyStack.peek())) {
             // add different paths from last and new initialized paths
             historyStack.add(getFullPath());
         }
     }
 
-    private void initFromAbsolutePath(String absolutePath) {
+    protected void initFromAbsolutePath(String absolutePath) {
         // initializes the path and fileName values
         int lastIndex = absolutePath.lastIndexOf(SEPARATOR);
         path = absolutePath.substring(0, lastIndex + 1);
         fileName = absolutePath.substring(lastIndex + 1);
+        addHistory();
     }
 
     public void revert() {
@@ -278,6 +273,43 @@ public class File extends java.io.File {
         }
     }
 
+    public boolean isImage() {
+        String originalExtension = getOriginalExtension();
+        String imageExtensions[] = new String[]{
+                "ANI",
+                "BMP",
+                "CAL",
+                "FAX",
+                "GIF",
+                "IMG",
+                "JBG",
+                "JPE",
+                "JPEG",
+                "JPG",
+                "MAC",
+                "PBM",
+                "PCD",
+                "PCX",
+                "PCT",
+                "PGM",
+                "PNG",
+                "PPM",
+                "PSD",
+                "RAS",
+                "TGA",
+                "TIFF",
+                "WMF"
+        };
+
+        for (String extension : imageExtensions) {
+            if (extension.equalsIgnoreCase(originalExtension)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public String getType() {
         if (isFile() && getOriginalExtension() != null) {
             return "file/" + getOriginalExtension();
@@ -409,6 +441,10 @@ public class File extends java.io.File {
 
     public String[] getHistory() {
         return historyStack.toArray(new String[historyStack.size()]);
+    }
+
+    public int getHistorySize() {
+        return historyStack.size();
     }
 
     @Override

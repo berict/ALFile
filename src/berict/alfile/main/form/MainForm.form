@@ -203,6 +203,15 @@
           </scrollpane>
         </children>
       </grid>
+      <grid id="93aee" binding="rightPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="East"/>
+        <properties>
+          <minimumSize width="120" height="24"/>
+          <preferredSize width="200" height="420"/>
+        </properties>
+        <border type="none"/>
+        <children/>
+      </grid>
     </children>
   </grid>
 </form>

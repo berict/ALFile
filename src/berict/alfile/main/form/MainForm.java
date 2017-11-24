@@ -13,7 +13,10 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 import static berict.alfile.file.File.*;
 import static berict.alfile.file.FileProcessor.writeToFile;
@@ -35,6 +38,7 @@ public class MainForm extends JFrame {
     private JTable table;
     private JButton subfolderButton;
     private JButton exportContentButton;
+    private JPanel rightPanel;
     private JPanel statusPanel;
     private JLabel status;
 
@@ -47,6 +51,8 @@ public class MainForm extends JFrame {
 
     public static int WINDOW_MIN_WIDTH = 600;
     public static int WINDOW_MIN_HEIGHT = 420;
+
+    TableModelRenderer renderer;
 
     public MainForm() {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -99,29 +105,21 @@ public class MainForm extends JFrame {
     }
 
     private void setUI() {
+        initCenterLayout();
+        initEastLayout();
+        initSouthLayout();
+        initWestLayout();
+    }
+
+    private void initCenterLayout() {
         tableModel = new TableModel();
         table.setModel(tableModel);
         //table.setSize(500, 300);
         table.setRowHeight(30);
         table.getColumn("Type").setMaxWidth(48);
 
-        System.out.println("table [" + table.getWidth() + ", " + table.getHeight() + "]");
-        System.out.println("center [" + centerPanel.getWidth() + ", " + centerPanel.getHeight() + "]");
-
-        radioGroup = new ButtonGroup();
-        radioGroup.add(processAllButton);
-        radioGroup.add(processSelectedButton);
-        processAllButton.setSelected(true);
-
-        statusPanel = new JPanel();
-        status = new JLabel("0 items", JLabel.LEFT);
-        statusPanel.setLayout(new BorderLayout());
-        statusPanel.add(status, BorderLayout.WEST);
-        statusPanel.setBorder(new EmptyBorder(2, 8, 2, 0));
-        add("South", statusPanel);
-
         // add styles
-        TableModelRenderer renderer = new TableModelRenderer(new Runnable() {
+        renderer = new TableModelRenderer(new Runnable() {
             @Override
             public void run() {
                 refreshStatus();
@@ -191,266 +189,7 @@ public class MainForm extends JFrame {
                     return;
                 }
 
-                if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
-                    JPopupMenu popup = new JPopupMenu("Edit");
-                    JMenuItem undo = new JMenuItem("Undo");
-                    JMenuItem revert = new JMenuItem("Revert all changes");
-                    JMenuItem history = new JMenuItem("Show history");
-                    JMenuItem remove = new JMenuItem("Remove from list");
-                    JMenuItem process = new JMenuItem("Process");
-
-                    if (tableModel.isModified(row)) {
-                        undo.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                for (int index : row) {
-                                    if (tableModel.get(index).isModified()) {
-                                        tableModel.get(index).getFile().undo();
-                                        Main.log("Menu.undo index=" + index);
-                                    }
-                                }
-                                tableModel.update();
-                            }
-                        });
-                        revert.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                for (int index : row) {
-                                    if (tableModel.get(index).isModified()) {
-                                        tableModel.get(index).getFile().revert();
-                                        Main.log("Menu.revert index=" + index);
-                                    }
-                                }
-                                tableModel.update();
-                            }
-                        });
-                        if (row.length > 1) {
-                            history.setEnabled(false);
-                        } else {
-                            final int[] selectedRow = {-1};
-                            final FileTableItem item = tableModel.get(row[0]);
-                            history.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    String history[] = item.getFile().getHistory();
-                                    JTable historyTable = new JTable();
-
-                                    historyTable.setRowSelectionAllowed(true);
-                                    historyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                                    historyTable.setRowHeight(24);
-
-                                    class HistoryTableModel extends AbstractTableModel {
-
-                                        public String[][] data = new String[0][1];
-                                        public String[][] tableData = new String[0][1];
-
-                                        public HistoryTableModel(String[] data) {
-                                            this.data = new String[data.length][1];
-                                            this.tableData = new String[data.length][1];
-                                            for (int i = 0; i < data.length; i++) {
-                                                // only display 24 characters
-                                                this.data[i][0] = data[i];
-                                                this.tableData[i][0] = "..." + data[i].substring(data[i].length() - 36);
-                                            }
-                                            Main.log(Arrays.deepToString(data));
-                                        }
-
-                                        @Override
-                                        public int getRowCount() {
-                                            return data.length;
-                                        }
-
-                                        @Override
-                                        public int getColumnCount() {
-                                            return 1;
-                                        }
-
-                                        @Override
-                                        public Object getValueAt(int rowIndex, int columnIndex) {
-                                            return tableData[rowIndex][columnIndex];
-                                        }
-
-                                        @Override
-                                        public boolean isCellEditable(int rowIndex, int columnIndex) {
-                                            return false;
-                                        }
-                                    }
-
-                                    class HistoryTableModelRenderer extends DefaultTableCellRenderer {
-
-                                        public HistoryTableModelRenderer() {
-                                            setOpaque(true);
-                                            setHorizontalAlignment(SwingConstants.LEFT);
-                                        }
-
-                                        @Override
-                                        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                                                       boolean isSelected, boolean hasFocus,
-                                                                                       int row, int column) {
-                                            Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                                            if (row == historyTable.getSelectedRow()) {
-                                                component.setBackground(hex2Rgb("#0078D7"));
-                                                component.setFont(new Font("Default", Font.PLAIN, 11));
-                                                setToolTipText(null);
-                                            } else if (row > historyTable.getSelectedRow()) {
-                                                component.setBackground(Color.LIGHT_GRAY);
-                                                component.setFont(new Font("Default", Font.ITALIC, 11));
-                                                setToolTipText("This will be undone");
-                                            } else {
-                                                component.setBackground(Color.WHITE);
-                                                component.setFont(new Font("Default", Font.PLAIN, 11));
-                                                setToolTipText(null);
-                                            }
-                                            component.setForeground(Color.BLACK);
-                                            return component;
-                                        }
-
-                                        public Color hex2Rgb(String colorStr) {
-                                            return new Color(
-                                                    Integer.valueOf(colorStr.substring(1, 3), 16),
-                                                    Integer.valueOf(colorStr.substring(3, 5), 16),
-                                                    Integer.valueOf(colorStr.substring(5, 7), 16));
-                                        }
-                                    }
-
-                                    HistoryTableModel historyTableModel = new HistoryTableModel(history);
-                                    HistoryTableModelRenderer modelRenderer = new HistoryTableModelRenderer();
-                                    TableColumnModel historyColumnModel = historyTable.getColumnModel();
-                                    for (int i = 0; i < historyColumnModel.getColumnCount(); i++) {
-                                        historyColumnModel.getColumn(i).setCellRenderer(modelRenderer);
-                                    }
-
-                                    historyTable.addMouseListener(new MouseListener() {
-                                        @Override
-                                        public void mouseClicked(MouseEvent e) {
-                                            for (int i = 0; i < historyColumnModel.getColumnCount(); i++) {
-                                                historyColumnModel.getColumn(i).setCellRenderer(modelRenderer);
-                                            }
-                                        }
-
-                                        @Override
-                                        public void mousePressed(MouseEvent e) {
-                                        }
-
-                                        @Override
-                                        public void mouseReleased(MouseEvent e) {
-                                            selectedRow[0] = historyTable.getSelectedRow();
-                                            Main.log("Selected " + selectedRow[0]);
-                                        }
-
-                                        @Override
-                                        public void mouseEntered(MouseEvent e) {
-                                        }
-
-                                        @Override
-                                        public void mouseExited(MouseEvent e) {
-                                        }
-                                    });
-                                    historyTable.setModel(historyTableModel);
-                                    // select the last item
-                                    historyTable.setRowSelectionInterval(
-                                            historyTable.getRowCount() - 1,
-                                            historyTable.getRowCount() - 1
-                                    );
-                                    historyTable.setDefaultRenderer(Object.class, renderer);
-
-                                    JComponent components[] = {
-                                            historyTable,
-                                            new JLabel("Click item to undo")
-                                    };
-                                    showDialog("History", components,
-                                            PLAIN_MESSAGE, OK_OPTION, OK_OPTION,
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Main.log("Close");
-                                                    if (selectedRow[0] >= 0) {
-                                                        Main.log("Undo to " + selectedRow[0]);
-                                                        tableModel.get(row[0]).getFile().undo(selectedRow[0]);
-                                                        tableModel.update();
-                                                    }
-                                                }
-                                            }, null);
-                                }
-                            });
-                        }
-                        process.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                for (int index : row) {
-                                    if (tableModel.get(index).isModified()) {
-                                        if (!tableModel.get(index).getFile().apply(tableModel)) {
-                                            makeErrorAlert("Failed to process");
-                                        }
-                                        Main.log("Menu.process index=" + index);
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        undo.setEnabled(false);
-                        process.setEnabled(false);
-                        revert.setEnabled(false);
-                    }
-
-                    remove.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            for (int i = row.length - 1; i >= 0; i--) {
-                                int index = row[i];
-                                tableModel.remove(index);
-                                Main.log("Menu.remove index=" + index);
-
-                            }
-                        }
-                    });
-
-                    popup.add(undo);
-                    popup.add(revert);
-                    popup.add(history);
-                    popup.add(remove);
-
-                    if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                        // windows only feature
-                        JMenuItem open = new JMenuItem("Show in explorer");
-                        final boolean[] allExist = {true};
-                        open.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (row.length > 1) {
-                                    for (int index : row) {
-                                        if (!tableModel.get(index).exists()) {
-                                            allExist[0] = false;
-                                            // found not existing file, break
-                                            break;
-                                        }
-                                    }
-                                    if (allExist[0]) {
-                                        makeCustomDialog("Warning", new JLabel("This will open multiple windows. Continue?"), WARNING_MESSAGE, YES_NO_OPTION, YES_OPTION,
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        for (int index : row) {
-                                                            showInExplorer(tableModel.get(index).getFile().getFullPath());
-                                                        }
-                                                    }
-                                                }, null);
-                                    }
-                                } else {
-                                    allExist[0] = tableModel.get(row[0]).exists();
-                                    if (allExist[0]) {
-                                        showInExplorer(tableModel.get(row[0]).getFile().getFullPath());
-                                    }
-                                }
-                            }
-                        });
-                        open.setEnabled(allExist[0]);
-                        popup.add(open);
-                    }
-
-                    popup.add(process);
-                    popup.show(e.getComponent(), e.getX(), e.getY());
-                }
+                onSelect(row, e);
             }
 
             @Override
@@ -464,6 +203,22 @@ public class MainForm extends JFrame {
         });
 
         tableModel.addTableModelListener(new TableModelListener());
+    }
+
+    private void initSouthLayout() {
+        statusPanel = new JPanel();
+        status = new JLabel("0 items", JLabel.LEFT);
+        statusPanel.setLayout(new BorderLayout());
+        statusPanel.add(status, BorderLayout.WEST);
+        statusPanel.setBorder(new EmptyBorder(2, 8, 2, 0));
+        add("South", statusPanel);
+    }
+
+    private void initWestLayout() {
+        radioGroup = new ButtonGroup();
+        radioGroup.add(processAllButton);
+        radioGroup.add(processSelectedButton);
+        processAllButton.setSelected(true);
 
         replaceButton.addActionListener(new ActionListener() {
             @Override
@@ -1120,6 +875,64 @@ public class MainForm extends JFrame {
         });
     }
 
+    private void initEastLayout() {
+        rightPanel.setMinimumSize(new Dimension(120, WINDOW_MIN_HEIGHT));
+    }
+
+    private void setPreviewStatus(String title, File file) {
+        JPanel preview = new JPanel();
+        preview.setBorder(new EmptyBorder(8, 8, 8, 8));
+        preview.setLayout(new BoxLayout(preview, BoxLayout.Y_AXIS));
+
+        JLabel titleLabel = new JLabel(file.getFileName());
+        titleLabel.setFont(new Font("Default", Font.PLAIN, 14));
+        titleLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
+
+        preview.add(titleLabel);
+
+        if (file != null) {
+            JLabel type = new JLabel(file.getType());
+            type.setFont(new Font("Default", Font.ITALIC, 13));
+            type.setBorder(new EmptyBorder(0, 0, 8, 0));
+            preview.add(type);
+
+            if (file.isImage()) {
+                ImageFile image = new ImageFile(file);
+                JLabel imageLabel = new JLabel(image.getResizedImageIcon(200));
+                imageLabel.setMinimumSize(new Dimension(200, 200));
+                imageLabel.setMaximumSize(new Dimension(200, 200));
+                imageLabel.setBorder(new EmptyBorder(0, 0, 8, 0));
+                preview.add(imageLabel);
+            }
+
+            JLabel size = new JLabel("Size : " + convertSize(file.length()));
+            size.setFont(new Font("Default", Font.PLAIN, 12));
+            preview.add(size);
+
+            JLabel modified = new JLabel("Date modified : " + convertTime(file.getOriginal().lastModified()));
+            modified.setFont(new Font("Default", Font.PLAIN, 12));
+            preview.add(modified);
+        }
+
+        rightPanel.add(preview);
+        rightPanel.revalidate();
+    }
+
+    public String convertSize(long bytes) {
+        boolean si = true;
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    public String convertTime(long time) {
+        Date date = new Date(time);
+        Format format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        return format.format(date);
+    }
+
     private void printSubfolderResult(int row, int folderCount, int moveCount, int errorCount) {
         if (tableModel.get(row).getFile().isDirectory()) {
             folderCount++;
@@ -1135,6 +948,273 @@ public class MainForm extends JFrame {
                     + moveCount + " move(s) and "
                     + errorCount + " error(s)");
         }
+    }
+
+    private void onSelect(int row[], MouseEvent e) {
+        if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
+            JPopupMenu popup = new JPopupMenu("Edit");
+            JMenuItem undo = new JMenuItem("Undo");
+            JMenuItem revert = new JMenuItem("Revert all changes");
+            JMenuItem history = new JMenuItem("Show history");
+            JMenuItem remove = new JMenuItem("Remove from list");
+            JMenuItem process = new JMenuItem("Process");
+
+            if (tableModel.isModified(row)) {
+                undo.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for (int index : row) {
+                            if (tableModel.get(index).isModified()) {
+                                tableModel.get(index).getFile().undo();
+                                Main.log("Menu.undo index=" + index);
+                            }
+                        }
+                        tableModel.update();
+                    }
+                });
+                revert.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for (int index : row) {
+                            if (tableModel.get(index).isModified()) {
+                                tableModel.get(index).getFile().revert();
+                                Main.log("Menu.revert index=" + index);
+                            }
+                        }
+                        tableModel.update();
+                    }
+                });
+
+                if (row.length > 1) {
+                    history.setEnabled(false);
+                } else {
+                    final int[] selectedRow = {-1};
+                    final FileTableItem item = tableModel.get(row[0]);
+                    history.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String history[] = item.getFile().getHistory();
+                            JTable historyTable = new JTable();
+
+                            historyTable.setRowSelectionAllowed(true);
+                            historyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                            historyTable.setRowHeight(24);
+
+                            class HistoryTableModel extends AbstractTableModel {
+
+                                public String[][] data = new String[0][1];
+                                public String[][] tableData = new String[0][1];
+
+                                public HistoryTableModel(String[] data) {
+                                    this.data = new String[data.length][1];
+                                    this.tableData = new String[data.length][1];
+                                    for (int i = 0; i < data.length; i++) {
+                                        // only display 24 characters
+                                        this.data[i][0] = data[i];
+                                        this.tableData[i][0] = "..." + data[i].substring(data[i].length() - 36);
+                                    }
+                                    Main.log(Arrays.deepToString(data));
+                                }
+
+                                @Override
+                                public int getRowCount() {
+                                    return data.length;
+                                }
+
+                                @Override
+                                public int getColumnCount() {
+                                    return 1;
+                                }
+
+                                @Override
+                                public Object getValueAt(int rowIndex, int columnIndex) {
+                                    return tableData[rowIndex][columnIndex];
+                                }
+
+                                @Override
+                                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                    return false;
+                                }
+                            }
+
+                            class HistoryTableModelRenderer extends DefaultTableCellRenderer {
+
+                                public HistoryTableModelRenderer() {
+                                    setOpaque(true);
+                                    setHorizontalAlignment(SwingConstants.LEFT);
+                                }
+
+                                @Override
+                                public Component getTableCellRendererComponent(JTable table, Object value,
+                                                                               boolean isSelected, boolean hasFocus,
+                                                                               int row, int column) {
+                                    Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                                    if (row == historyTable.getSelectedRow()) {
+                                        component.setBackground(hex2Rgb("#0078D7"));
+                                        component.setFont(new Font("Default", Font.PLAIN, 11));
+                                        setToolTipText(null);
+                                    } else if (row > historyTable.getSelectedRow()) {
+                                        component.setBackground(Color.LIGHT_GRAY);
+                                        component.setFont(new Font("Default", Font.ITALIC, 11));
+                                        setToolTipText("This will be undone");
+                                    } else {
+                                        component.setBackground(Color.WHITE);
+                                        component.setFont(new Font("Default", Font.PLAIN, 11));
+                                        setToolTipText(null);
+                                    }
+                                    component.setForeground(Color.BLACK);
+                                    return component;
+                                }
+
+                                public Color hex2Rgb(String colorStr) {
+                                    return new Color(
+                                            Integer.valueOf(colorStr.substring(1, 3), 16),
+                                            Integer.valueOf(colorStr.substring(3, 5), 16),
+                                            Integer.valueOf(colorStr.substring(5, 7), 16));
+                                }
+                            }
+
+                            HistoryTableModel historyTableModel = new HistoryTableModel(history);
+                            HistoryTableModelRenderer modelRenderer = new HistoryTableModelRenderer();
+                            TableColumnModel historyColumnModel = historyTable.getColumnModel();
+                            for (int i = 0; i < historyColumnModel.getColumnCount(); i++) {
+                                historyColumnModel.getColumn(i).setCellRenderer(modelRenderer);
+                            }
+
+                            historyTable.addMouseListener(new MouseListener() {
+                                @Override
+                                public void mouseClicked(MouseEvent e) {
+                                    for (int i = 0; i < historyColumnModel.getColumnCount(); i++) {
+                                        historyColumnModel.getColumn(i).setCellRenderer(modelRenderer);
+                                    }
+                                }
+
+                                @Override
+                                public void mousePressed(MouseEvent e) {
+                                }
+
+                                @Override
+                                public void mouseReleased(MouseEvent e) {
+                                    selectedRow[0] = historyTable.getSelectedRow();
+                                    Main.log("Selected " + selectedRow[0]);
+                                }
+
+                                @Override
+                                public void mouseEntered(MouseEvent e) {
+                                }
+
+                                @Override
+                                public void mouseExited(MouseEvent e) {
+                                }
+                            });
+                            historyTable.setModel(historyTableModel);
+                            // select the last item
+                            historyTable.setRowSelectionInterval(
+                                    historyTable.getRowCount() - 1,
+                                    historyTable.getRowCount() - 1
+                            );
+                            historyTable.setDefaultRenderer(Object.class, renderer);
+
+                            JComponent components[] = {
+                                    historyTable,
+                                    new JLabel("Click item to undo")
+                            };
+                            showDialog("History", components,
+                                    PLAIN_MESSAGE, OK_OPTION, OK_OPTION,
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Main.log("Close");
+                                            if (selectedRow[0] >= 0) {
+                                                Main.log("Undo to " + selectedRow[0]);
+                                                tableModel.get(row[0]).getFile().undo(selectedRow[0]);
+                                                tableModel.update();
+                                            }
+                                        }
+                                    }, null);
+                        }
+                    });
+                }
+
+                process.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for (int index : row) {
+                            if (tableModel.get(index).isModified()) {
+                                if (!tableModel.get(index).getFile().apply(tableModel)) {
+                                    makeErrorAlert("Failed to process");
+                                }
+                                Main.log("Menu.process index=" + index);
+                            }
+                        }
+                    }
+                });
+            } else {
+                undo.setEnabled(false);
+                history.setEnabled(false);
+                process.setEnabled(false);
+                revert.setEnabled(false);
+            }
+
+            remove.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    for (int i = row.length - 1; i >= 0; i--) {
+                        int index = row[i];
+                        tableModel.remove(index);
+                        Main.log("Menu.remove index=" + index);
+                    }
+                }
+            });
+
+            popup.add(undo);
+            popup.add(revert);
+            popup.add(history);
+            popup.add(remove);
+
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                // windows only feature
+                JMenuItem open = new JMenuItem("Show in explorer");
+                final boolean[] allExist = {true};
+                open.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (row.length > 1) {
+                            for (int index : row) {
+                                if (!tableModel.get(index).exists()) {
+                                    allExist[0] = false;
+                                    // found not existing file, break
+                                    break;
+                                }
+                            }
+                            if (allExist[0]) {
+                                makeCustomDialog("Warning", new JLabel("This will open multiple windows. Continue?"), WARNING_MESSAGE, YES_NO_OPTION, YES_OPTION,
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                for (int index : row) {
+                                                    showInExplorer(tableModel.get(index).getFile().getFullPath());
+                                                }
+                                            }
+                                        }, null);
+                            }
+                        } else {
+                            allExist[0] = tableModel.get(row[0]).exists();
+                            if (allExist[0]) {
+                                showInExplorer(tableModel.get(row[0]).getFile().getFullPath());
+                            }
+                        }
+                    }
+                });
+                open.setEnabled(allExist[0]);
+                popup.add(open);
+            }
+
+            popup.add(process);
+            popup.show(e.getComponent(), e.getX(), e.getY());
+        }
+
+        setPreviewStatus("Test", tableModel.get(row[0]).getFile());
     }
 
     private void setStatus(String text) {
