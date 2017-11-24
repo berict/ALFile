@@ -239,18 +239,43 @@ public class MainForm extends JFrame {
                     JPanel regexHelp = new JPanel();
                     regexHelp.setLayout(new BorderLayout());
                     regexHelp.add(getRegexHelp(oldString), BorderLayout.WEST);
+
                     JLabel helpText = new JLabel("Click to append expression.");
                     helpText.setBorder(new EmptyBorder(4, 0, 8, 0));
                     regexHelp.add(helpText, BorderLayout.SOUTH);
 
-                    final JComponent[] inputs = new JComponent[]{
+                    JCheckBox useRegex = new JCheckBox("Use regular expression");
+                    useRegex.setSelected(true);
+                    useRegex.addItemListener(new ItemListener() {
+                        @Override
+                        public void itemStateChanged(ItemEvent e) {
+                            Main.log("useRegex = " + useRegex.isSelected());
+                            regexHelp.setVisible(useRegex.isSelected());
+                            regexHelp.revalidate();
+                            all.setVisible(useRegex.isSelected());
+                            all.revalidate();
+                            first.setVisible(useRegex.isSelected());
+                            first.revalidate();
+                        }
+                    });
+
+                    useRegex.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    oldString.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    newString.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    all.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    first.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                    Component inputs[] = new Component[]{
                             regexHelp,
                             new JLabel("String to replace"),
                             oldString,
                             new JLabel("New string"),
                             newString,
-                            all, first
+                            useRegex,
+                            all,
+                            first,
                     };
+
 
                     makeDialog("Replace", inputs, OK_CANCEL_OPTION, OK_OPTION,
                             new Runnable() {
@@ -261,7 +286,14 @@ public class MainForm extends JFrame {
                                         if (isAvailableForFileName(newString.getText())) {
                                             if (table.getSelectedRows().length > 0) {
                                                 // has selected rows
-                                                if (all.isSelected()) {
+                                                if (!useRegex.isSelected()) {
+                                                    // replace no regex
+                                                    for (int row : table.getSelectedRows()) {
+                                                        tableModel.get(row)
+                                                                .getFile()
+                                                                .replace(oldString.getText(), newString.getText());
+                                                    }
+                                                } else if (all.isSelected()) {
                                                     // replace all
                                                     for (int row : table.getSelectedRows()) {
                                                         tableModel.get(row)
@@ -283,7 +315,14 @@ public class MainForm extends JFrame {
                                                         new Runnable() {
                                                             @Override
                                                             public void run() {
-                                                                if (all.isSelected()) {
+                                                                if (!useRegex.isSelected()) {
+                                                                    // replace no regex
+                                                                    for (int row = 0; row < table.getRowCount(); row++) {
+                                                                        tableModel.get(row)
+                                                                                .getFile()
+                                                                                .replace(oldString.getText(), newString.getText());
+                                                                    }
+                                                                } else if (all.isSelected()) {
                                                                     // replace all
                                                                     for (int row = 0; row < table.getRowCount(); row++) {
                                                                         tableModel.get(row)
@@ -873,6 +912,17 @@ public class MainForm extends JFrame {
                 }
             }
         });
+    }
+
+    private String getNonRegex(String regex) {
+        String regexSpecial[] = {"[", "\\", "^", "$", ".", "|", "?", "*", "+", "(", ")", "{", "}"};
+        String result = regex;
+
+        for (String special : regexSpecial) {
+            result = result.replace(special, '\\' + special);
+        }
+
+        return result;
     }
 
     private void initEastLayout() {

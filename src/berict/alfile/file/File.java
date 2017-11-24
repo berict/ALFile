@@ -156,6 +156,15 @@ public class File extends java.io.File {
         }
     }
 
+    public void replace(String original, String replacement) {
+        if (isAvailableForFileName(replacement)) {
+            this.fileName = fileName.replace(original, replacement);
+            addHistory();
+        } else {
+            makeErrorAlert("Following characters are not available for file names: " + RESTRICTED_CHARACTER);
+        }
+    }
+
     public void replaceExtension(String replacement) {
         if (isAvailableForFileName(replacement)) {
             String names[] = fileName.split("\\.");
